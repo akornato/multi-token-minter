@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "multi-token-minter",
+  "workspaces": [
+    "hh",
+    "web"
+  ],
+  "packageManager": "yarn@3.2.3"
+}
