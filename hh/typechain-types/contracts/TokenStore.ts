@@ -32,12 +32,14 @@ export interface TokenStoreInterface extends utils.Interface {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "isTokenMinterApproved(uint256,address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
+    "setTokenMinterApproval(uint256,address,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "uri(uint256)": FunctionFragment;
@@ -48,12 +50,14 @@ export interface TokenStoreInterface extends utils.Interface {
       | "balanceOf"
       | "balanceOfBatch"
       | "isApprovedForAll"
+      | "isTokenMinterApproved"
       | "mint"
       | "owner"
       | "renounceOwnership"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
       | "setApprovalForAll"
+      | "setTokenMinterApproval"
       | "supportsInterface"
       | "transferOwnership"
       | "uri"
@@ -70,6 +74,10 @@ export interface TokenStoreInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenMinterApproved",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -110,6 +118,14 @@ export interface TokenStoreInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setTokenMinterApproval",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -131,6 +147,10 @@ export interface TokenStoreInterface extends utils.Interface {
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenMinterApproved",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -150,6 +170,10 @@ export interface TokenStoreInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setTokenMinterApproval",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -162,6 +186,7 @@ export interface TokenStoreInterface extends utils.Interface {
   events: {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "TokenMinterApproval(uint256,address,bool)": EventFragment;
     "TransferBatch(address,address,address,uint256[],uint256[])": EventFragment;
     "TransferSingle(address,address,address,uint256,uint256)": EventFragment;
     "URI(string,uint256)": EventFragment;
@@ -169,6 +194,7 @@ export interface TokenStoreInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenMinterApproval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferBatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferSingle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "URI"): EventFragment;
@@ -197,6 +223,19 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface TokenMinterApprovalEventObject {
+  id: BigNumber;
+  minter: string;
+  approved: boolean;
+}
+export type TokenMinterApprovalEvent = TypedEvent<
+  [BigNumber, string, boolean],
+  TokenMinterApprovalEventObject
+>;
+
+export type TokenMinterApprovalEventFilter =
+  TypedEventFilter<TokenMinterApprovalEvent>;
 
 export interface TransferBatchEventObject {
   operator: string;
@@ -279,6 +318,12 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isTokenMinterApproved(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -317,6 +362,13 @@ export interface TokenStore extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setTokenMinterApproval(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -348,6 +400,12 @@ export interface TokenStore extends BaseContract {
   isApprovedForAll(
     account: PromiseOrValue<string>,
     operator: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isTokenMinterApproved(
+    id: PromiseOrValue<BigNumberish>,
+    minter: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -389,6 +447,13 @@ export interface TokenStore extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setTokenMinterApproval(
+    id: PromiseOrValue<BigNumberish>,
+    minter: PromiseOrValue<string>,
+    approved: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -420,6 +485,12 @@ export interface TokenStore extends BaseContract {
     isApprovedForAll(
       account: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isTokenMinterApproved(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -455,6 +526,13 @@ export interface TokenStore extends BaseContract {
 
     setApprovalForAll(
       operator: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTokenMinterApproval(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -495,6 +573,17 @@ export interface TokenStore extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "TokenMinterApproval(uint256,address,bool)"(
+      id?: PromiseOrValue<BigNumberish> | null,
+      minter?: PromiseOrValue<string> | null,
+      approved?: null
+    ): TokenMinterApprovalEventFilter;
+    TokenMinterApproval(
+      id?: PromiseOrValue<BigNumberish> | null,
+      minter?: PromiseOrValue<string> | null,
+      approved?: null
+    ): TokenMinterApprovalEventFilter;
 
     "TransferBatch(address,address,address,uint256[],uint256[])"(
       operator?: PromiseOrValue<string> | null,
@@ -552,6 +641,12 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isTokenMinterApproved(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -586,6 +681,13 @@ export interface TokenStore extends BaseContract {
 
     setApprovalForAll(
       operator: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTokenMinterApproval(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -625,6 +727,12 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isTokenMinterApproved(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -659,6 +767,13 @@ export interface TokenStore extends BaseContract {
 
     setApprovalForAll(
       operator: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenMinterApproval(
+      id: PromiseOrValue<BigNumberish>,
+      minter: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
