@@ -3,6 +3,7 @@ import Head from "next/head";
 import { Box, Stack, Button } from "@chakra-ui/react";
 import { useEtherBalance, useEthers } from "@usedapp/core";
 import { formatEther } from "@ethersproject/units";
+import { IpfsUpload } from "../components/IpfsUpload";
 
 const Home: NextPage = () => {
   const { activateBrowserWallet, account } = useEthers();
@@ -20,7 +21,12 @@ const Home: NextPage = () => {
           <Button colorScheme="blue">Mint</Button>
         </Stack>
         {account && <Box mt={4}>Account: {account}</Box>}
-        {etherBalance && <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>}
+        {etherBalance && (
+          <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>
+        )}
+        <Box mt={4}>
+          <IpfsUpload />
+        </Box>
       </Box>
     </div>
   );
