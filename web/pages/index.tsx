@@ -7,7 +7,7 @@ import { formatEther } from "@ethersproject/units";
 import { IpfsUpload } from "../components/IpfsUpload";
 
 const Home: NextPage = () => {
-  const { activateBrowserWallet, account } = useEthers();
+  const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [ipfsPath, setIpfsPath] = useState<string>();
 
@@ -19,7 +19,9 @@ const Home: NextPage = () => {
       </Head>
 
       <Box m={4}>
-        <Button onClick={activateBrowserWallet}>Connect</Button>{" "}
+        <Button onClick={account ? deactivate : activateBrowserWallet}>
+          {account ? "Disconnect" : "Connect"}
+        </Button>{" "}
         {account && <Box mt={4}>Account: {account}</Box>}
         {etherBalance && (
           <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>
