@@ -25,8 +25,12 @@ contract TokenStore is ERC1155, Ownable {
     constructor() ERC1155("") {}
 
     function initializeToken(uint256 id, string memory uri_) external {
-        _tokenURIs[id] = uri_;
-        _tokenMinterApprovals[id][_msgSender()] = true;
+        if (bytes(_tokenURIs[id]).length == 0) {
+            _tokenURIs[id] = uri_;
+            _tokenMinterApprovals[id][_msgSender()] = true;
+        } else {
+            revert("TokenStore: Token is already initialized");
+        }
     }
 
     function uri(uint256 id) public view override returns (string memory) {

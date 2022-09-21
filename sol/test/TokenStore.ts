@@ -20,6 +20,17 @@ describe("TokenStore", function () {
       expect(await tokenStore.owner()).to.equal(owner.address);
     });
 
+    it("Should not be possible to initialize token twice", async function () {
+      const { tokenStore, accountA, accountB } = await loadFixture(
+        deployFixture
+      );
+
+      await tokenStore.connect(accountA).initializeToken(1, "some uri");
+      await expect(
+        tokenStore.connect(accountA).initializeToken(1, "some uri")
+      ).to.be.revertedWith("TokenStore: Token is already initialized");
+    });
+
     it("Should token minter approvals work", async function () {
       const { tokenStore, accountA, accountB } = await loadFixture(
         deployFixture
