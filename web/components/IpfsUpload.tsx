@@ -30,9 +30,17 @@ export const IpfsUpload: React.FC<{
   const image = filesContent[0];
 
   useEffect(() => {
-    if (!ipfs) {
-      create().then(setIpfs);
-    }
+    const initIpfs = async () => {
+      if (!ipfs) {
+        try {
+          const ipfs = await create();
+          setIpfs(ipfs);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    };
+    initIpfs();
   }, [ipfs]);
 
   const addToIpfs = useCallback(async () => {
