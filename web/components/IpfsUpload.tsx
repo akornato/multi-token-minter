@@ -55,14 +55,14 @@ export const IpfsUpload: React.FC<{
     <>
       <h4>IPFS status: {ipfs?.isOnline() ? "Online" : "Offline"}</h4>
       <InputGroup mt={4}>
-        <InputLeftAddon>Name</InputLeftAddon>
+        <InputLeftAddon>Token name</InputLeftAddon>
         <Input
           type="string"
           onChange={(event) => setName(event.target.value)}
         />
       </InputGroup>
       <InputGroup mt={4}>
-        <InputLeftAddon>Description</InputLeftAddon>
+        <InputLeftAddon>Token description</InputLeftAddon>
         <Input
           type="string"
           onChange={(event) => setDescription(event.target.value)}
@@ -88,9 +88,7 @@ export const IpfsUpload: React.FC<{
         ))}
       {ipfs && name && description && image && (
         <Box mt={4}>
-          <Button onClick={addToIpfs}>
-            Add to IPFS
-          </Button>
+          <Button onClick={addToIpfs}>Add metadata to IPFS</Button>
         </Box>
       )}
     </>

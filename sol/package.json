@@ -2,6 +2,7 @@
   "name": "sol",
   "version": "1.0.0",
   "scripts": {
+    "sol:node": "hardhat node",
     "sol:compile": "hardhat compile",
     "sol:test": "hardhat test",
     "sol:deploy": "hardhat run ./scripts/deploy.ts"
