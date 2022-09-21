@@ -1,10 +1,10 @@
 {
-  "name": "hh",
+  "name": "sol",
   "version": "1.0.0",
   "scripts": {
-    "hh:compile": "hardhat compile",
-    "hh:test": "hardhat test",
-    "hh:deploy": "hardhat run ./scripts/deploy.ts"
+    "sol:compile": "hardhat compile",
+    "sol:test": "hardhat test",
+    "sol:deploy": "hardhat run ./scripts/deploy.ts"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",

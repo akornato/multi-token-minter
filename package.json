@@ -2,7 +2,7 @@
   "private": true,
   "name": "multi-token-minter",
   "workspaces": [
-    "hh",
+    "sol",
     "web"
   ],
   "packageManager": "yarn@3.2.3"
