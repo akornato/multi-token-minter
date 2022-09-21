@@ -186,7 +186,7 @@ export interface TokenStoreInterface extends utils.Interface {
   events: {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "TokenMinterApproval(uint256,address,bool)": EventFragment;
+    "TokenMinterApproval(uint256,address,address,bool)": EventFragment;
     "TransferBatch(address,address,address,uint256[],uint256[])": EventFragment;
     "TransferSingle(address,address,address,uint256,uint256)": EventFragment;
     "URI(string,uint256)": EventFragment;
@@ -226,11 +226,12 @@ export type OwnershipTransferredEventFilter =
 
 export interface TokenMinterApprovalEventObject {
   id: BigNumber;
+  account: string;
   minter: string;
   approved: boolean;
 }
 export type TokenMinterApprovalEvent = TypedEvent<
-  [BigNumber, string, boolean],
+  [BigNumber, string, string, boolean],
   TokenMinterApprovalEventObject
 >;
 
@@ -574,13 +575,15 @@ export interface TokenStore extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "TokenMinterApproval(uint256,address,bool)"(
+    "TokenMinterApproval(uint256,address,address,bool)"(
       id?: PromiseOrValue<BigNumberish> | null,
+      account?: PromiseOrValue<string> | null,
       minter?: PromiseOrValue<string> | null,
       approved?: null
     ): TokenMinterApprovalEventFilter;
     TokenMinterApproval(
       id?: PromiseOrValue<BigNumberish> | null,
+      account?: PromiseOrValue<string> | null,
       minter?: PromiseOrValue<string> | null,
       approved?: null
     ): TokenMinterApprovalEventFilter;

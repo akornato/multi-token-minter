@@ -13,11 +13,11 @@ contract TokenStore is ERC1155, Ownable {
     mapping(uint256 => bool) private _tokenMinted;
 
     /**
-     * @dev Emitted when `account` grants or revokes permission to `operator` to transfer their tokens, according to
-     * `approved`.
+     * @dev Emitted when `account` grants or revokes permission to `minter`.
      */
     event TokenMinterApproval(
         uint256 indexed id,
+        address indexed account,
         address indexed minter,
         bool approved
     );
@@ -57,7 +57,7 @@ contract TokenStore is ERC1155, Ownable {
             "TokenStore: sender needs to be token minter approved"
         );
         _tokenMinterApprovals[id][minter] = approved;
-        emit TokenMinterApproval(id, minter, approved);
+        emit TokenMinterApproval(id, _msgSender(), minter, approved);
     }
 
     function isTokenMinterApproved(uint256 id, address minter)

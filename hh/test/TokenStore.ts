@@ -39,7 +39,7 @@ describe("TokenStore", function () {
           .setTokenMinterApproval(1, accountB.address, true)
       )
         .to.emit(tokenStore, "TokenMinterApproval")
-        .withArgs(1, accountB.address, true);
+        .withArgs(1, accountA.address, accountB.address, true);
       expect(
         await tokenStore.isTokenMinterApproved(1, accountB.address)
       ).to.equal(true);
