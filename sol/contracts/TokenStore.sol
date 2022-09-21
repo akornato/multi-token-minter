@@ -9,8 +9,8 @@ contract TokenStore is ERC1155, Ownable {
     // Mapping from token ID to minter approvals
     mapping(uint256 => mapping(address => bool)) private _tokenMinterApprovals;
 
-    // Mapping from token ID to boolean
-    mapping(uint256 => bool) private _tokenMinted;
+    // Mapping from token ID to URI
+    mapping(uint256 => string) private _tokenURIs;
 
     /**
      * @dev Emitted when `account` grants or revokes permission to `minter`.
@@ -22,7 +22,16 @@ contract TokenStore is ERC1155, Ownable {
         bool approved
     );
 
-    constructor() ERC1155("https://some.example/api/item/{id}.json") {}
+    constructor() ERC1155("") {}
+
+    function initializeToken(uint256 id, string memory uri_) external {
+        _tokenURIs[id] = uri_;
+        _tokenMinterApprovals[id][_msgSender()] = true;
+    }
+
+    function uri(uint256 id) public view override returns (string memory) {
+        return _tokenURIs[id];
+    }
 
     function mint(
         address to,
@@ -30,16 +39,10 @@ contract TokenStore is ERC1155, Ownable {
         uint256 amount,
         bytes memory data
     ) external {
-        if (_tokenMinted[id]) {
-            if (_tokenMinterApprovals[id][_msgSender()]) {
-                _mint(to, id, amount, data);
-            } else {
-                revert("TokenStore: Minter not approved for this token ID");
-            }
-        } else {
-            _tokenMinted[id] = true;
-            _tokenMinterApprovals[id][_msgSender()] = true;
+        if (_tokenMinterApprovals[id][_msgSender()]) {
             _mint(to, id, amount, data);
+        } else {
+            revert("TokenStore: Minter not approved for this token ID");
         }
     }
 

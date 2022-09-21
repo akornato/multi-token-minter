@@ -25,6 +25,7 @@ describe("TokenStore", function () {
         deployFixture
       );
 
+      await tokenStore.connect(accountA).initializeToken(1, "some uri");
       await tokenStore.connect(accountA).mint(accountA.address, 1, 1, []);
       expect(await tokenStore.balanceOf(accountA.address, 1)).to.equal(1);
       expect(

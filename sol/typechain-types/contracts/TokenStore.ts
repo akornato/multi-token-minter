@@ -31,6 +31,7 @@ export interface TokenStoreInterface extends utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
+    "initializeToken(uint256,string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isTokenMinterApproved(uint256,address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
@@ -49,6 +50,7 @@ export interface TokenStoreInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "balanceOf"
       | "balanceOfBatch"
+      | "initializeToken"
       | "isApprovedForAll"
       | "isTokenMinterApproved"
       | "mint"
@@ -70,6 +72,10 @@ export interface TokenStoreInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "balanceOfBatch",
     values: [PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeToken",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
@@ -141,6 +147,10 @@ export interface TokenStoreInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -313,6 +323,12 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
+    initializeToken(
+      id: PromiseOrValue<BigNumberish>,
+      uri_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     isApprovedForAll(
       account: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
@@ -381,7 +397,7 @@ export interface TokenStore extends BaseContract {
     ): Promise<ContractTransaction>;
 
     uri(
-      arg0: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
   };
@@ -397,6 +413,12 @@ export interface TokenStore extends BaseContract {
     ids: PromiseOrValue<BigNumberish>[],
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
+
+  initializeToken(
+    id: PromiseOrValue<BigNumberish>,
+    uri_: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   isApprovedForAll(
     account: PromiseOrValue<string>,
@@ -466,7 +488,7 @@ export interface TokenStore extends BaseContract {
   ): Promise<ContractTransaction>;
 
   uri(
-    arg0: PromiseOrValue<BigNumberish>,
+    id: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -482,6 +504,12 @@ export interface TokenStore extends BaseContract {
       ids: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
+
+    initializeToken(
+      id: PromiseOrValue<BigNumberish>,
+      uri_: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     isApprovedForAll(
       account: PromiseOrValue<string>,
@@ -549,7 +577,7 @@ export interface TokenStore extends BaseContract {
     ): Promise<void>;
 
     uri(
-      arg0: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -638,6 +666,12 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initializeToken(
+      id: PromiseOrValue<BigNumberish>,
+      uri_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       account: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
@@ -706,7 +740,7 @@ export interface TokenStore extends BaseContract {
     ): Promise<BigNumber>;
 
     uri(
-      arg0: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -722,6 +756,12 @@ export interface TokenStore extends BaseContract {
       accounts: PromiseOrValue<string>[],
       ids: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initializeToken(
+      id: PromiseOrValue<BigNumberish>,
+      uri_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     isApprovedForAll(
@@ -792,7 +832,7 @@ export interface TokenStore extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     uri(
-      arg0: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
