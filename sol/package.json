@@ -5,7 +5,7 @@
     "sol:node": "hardhat node",
     "sol:compile": "hardhat compile",
     "sol:test": "hardhat test",
-    "sol:deploy": "hardhat run ./scripts/deploy.ts"
+    "sol:deploy": "hardhat run --network localhost ./scripts/deploy.ts"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",

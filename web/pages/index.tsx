@@ -17,10 +17,8 @@ const Home: NextPage = () => {
   const etherBalance = useEtherBalance(account);
   const [ipfsPath, setIpfsPath] = useState<string>();
   const [tokenID, setTokenID] = useState<string>();
-
-  const initializeToken = useCallback(async () => {
-
-  }, []);
+  
+  const initializeToken = useCallback(async () => {}, []);
 
   return (
     <div>
