@@ -3,18 +3,16 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 contract TokenStore is ERC1155, Ownable {
     // Mapping from token ID to minter approvals
-    mapping(uint256 => mapping(address => bool)) private _tokenMinterApprovals;
+    mapping(uint256 => mapping(address => bool)) public tokenMinterApprovals;
 
     // Mapping from token ID to URI
-    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 => string) public tokenURIs;
 
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
+    uint256 public nextTokenId;
 
     /**
      * @dev Emitted when `account` grants or revokes permission to `minter`.
@@ -26,17 +24,18 @@ contract TokenStore is ERC1155, Ownable {
         bool approved
     );
 
-    constructor() ERC1155("") {}
+    constructor() ERC1155("") {
+        nextTokenId = 0;
+    }
 
     function initializeToken(string memory uri_) external {
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        _tokenURIs[newTokenId] = uri_;
-        _tokenMinterApprovals[newTokenId][_msgSender()] = true;
+        tokenURIs[nextTokenId] = uri_;
+        tokenMinterApprovals[nextTokenId][_msgSender()] = true;
+        nextTokenId++;
     }
 
     function uri(uint256 id) public view override returns (string memory) {
-        return _tokenURIs[id];
+        return tokenURIs[id];
     }
 
     function mint(
@@ -45,7 +44,7 @@ contract TokenStore is ERC1155, Ownable {
         uint256 amount,
         bytes memory data
     ) external {
-        if (_tokenMinterApprovals[id][_msgSender()]) {
+        if (tokenMinterApprovals[id][_msgSender()]) {
             _mint(to, id, amount, data);
         } else {
             revert("TokenStore: Minter not approved for this token ID");
@@ -62,10 +61,10 @@ contract TokenStore is ERC1155, Ownable {
             "TokenStore: setting token minter approval status for self"
         );
         require(
-            _tokenMinterApprovals[id][_msgSender()],
+            tokenMinterApprovals[id][_msgSender()],
             "TokenStore: sender needs to be token minter approved"
         );
-        _tokenMinterApprovals[id][minter] = approved;
+        tokenMinterApprovals[id][minter] = approved;
         emit TokenMinterApproval(id, _msgSender(), minter, approved);
     }
 
@@ -74,6 +73,6 @@ contract TokenStore is ERC1155, Ownable {
         view
         returns (bool)
     {
-        return _tokenMinterApprovals[id][minter];
+        return tokenMinterApprovals[id][minter];
     }
 }

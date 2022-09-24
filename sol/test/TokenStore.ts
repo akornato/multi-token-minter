@@ -26,26 +26,26 @@ describe("TokenStore", function () {
       );
 
       await tokenStore.connect(accountA).initializeToken("some uri");
-      await tokenStore.connect(accountA).mint(accountA.address, 1, 1, []);
-      expect(await tokenStore.balanceOf(accountA.address, 1)).to.equal(1);
+      await tokenStore.connect(accountA).mint(accountA.address, 0, 1, []);
+      expect(await tokenStore.balanceOf(accountA.address, 0)).to.equal(1);
       expect(
-        await tokenStore.isTokenMinterApproved(1, accountA.address)
+        await tokenStore.isTokenMinterApproved(0, accountA.address)
       ).to.equal(true);
       await expect(
-        tokenStore.connect(accountB).mint(accountB.address, 1, 1, [])
+        tokenStore.connect(accountB).mint(accountB.address, 0, 1, [])
       ).to.be.revertedWith("TokenStore: Minter not approved for this token ID");
       await expect(
         tokenStore
           .connect(accountA)
-          .setTokenMinterApproval(1, accountB.address, true)
+          .setTokenMinterApproval(0, accountB.address, true)
       )
         .to.emit(tokenStore, "TokenMinterApproval")
-        .withArgs(1, accountA.address, accountB.address, true);
+        .withArgs(0, accountA.address, accountB.address, true);
       expect(
-        await tokenStore.isTokenMinterApproved(1, accountB.address)
+        await tokenStore.isTokenMinterApproved(0, accountB.address)
       ).to.equal(true);
-      await tokenStore.connect(accountB).mint(accountB.address, 1, 1, []);
-      expect(await tokenStore.balanceOf(accountB.address, 1)).to.equal(1);
+      await tokenStore.connect(accountB).mint(accountB.address, 0, 1, []);
+      expect(await tokenStore.balanceOf(accountB.address, 0)).to.equal(1);
     });
   });
 });

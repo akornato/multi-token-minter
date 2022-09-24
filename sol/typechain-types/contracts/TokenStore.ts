@@ -35,6 +35,7 @@ export interface TokenStoreInterface extends utils.Interface {
     "isApprovedForAll(address,address)": FunctionFragment;
     "isTokenMinterApproved(uint256,address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
+    "nextTokenId()": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
@@ -42,6 +43,8 @@ export interface TokenStoreInterface extends utils.Interface {
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setTokenMinterApproval(uint256,address,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
+    "tokenMinterApprovals(uint256,address)": FunctionFragment;
+    "tokenURIs(uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "uri(uint256)": FunctionFragment;
   };
@@ -54,6 +57,7 @@ export interface TokenStoreInterface extends utils.Interface {
       | "isApprovedForAll"
       | "isTokenMinterApproved"
       | "mint"
+      | "nextTokenId"
       | "owner"
       | "renounceOwnership"
       | "safeBatchTransferFrom"
@@ -61,6 +65,8 @@ export interface TokenStoreInterface extends utils.Interface {
       | "setApprovalForAll"
       | "setTokenMinterApproval"
       | "supportsInterface"
+      | "tokenMinterApprovals"
+      | "tokenURIs"
       | "transferOwnership"
       | "uri"
   ): FunctionFragment;
@@ -93,6 +99,10 @@ export interface TokenStoreInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "nextTokenId",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -136,6 +146,14 @@ export interface TokenStoreInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "tokenMinterApprovals",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tokenURIs",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
@@ -162,6 +180,10 @@ export interface TokenStoreInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "nextTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -187,6 +209,11 @@ export interface TokenStoreInterface extends utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenMinterApprovals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "tokenURIs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -348,6 +375,8 @@ export interface TokenStore extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    nextTokenId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -389,6 +418,17 @@ export interface TokenStore extends BaseContract {
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    tokenMinterApprovals(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    tokenURIs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -438,6 +478,8 @@ export interface TokenStore extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -479,6 +521,17 @@ export interface TokenStore extends BaseContract {
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  tokenMinterApprovals(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  tokenURIs(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
@@ -528,6 +581,8 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
@@ -567,6 +622,17 @@ export interface TokenStore extends BaseContract {
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    tokenMinterApprovals(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    tokenURIs(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -688,6 +754,8 @@ export interface TokenStore extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
@@ -727,6 +795,17 @@ export interface TokenStore extends BaseContract {
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenMinterApprovals(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenURIs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -779,6 +858,8 @@ export interface TokenStore extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    nextTokenId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
@@ -818,6 +899,17 @@ export interface TokenStore extends BaseContract {
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenMinterApprovals(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenURIs(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -20,16 +20,14 @@ import {
 import { ethers } from "ethers";
 import { useContractFunction } from "@usedapp/core";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
-import { create, IPFS } from "ipfs-core";
+import { IPFS } from "ipfs-core";
 import { TokenStore } from "sol/typechain-types";
 import { useFilePicker } from "use-file-picker";
 
-let ipfs: IPFS;
-
-export const InitializeTokenModal: React.FC = () => {
+export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [
     openFileSelector,
     { filesContent, loading: fileLoading, errors: fileErrors },
@@ -49,19 +47,6 @@ export const InitializeTokenModal: React.FC = () => {
     "initializeToken"
   );
 
-  useEffect(() => {
-    const initIpfs = async () => {
-      if (!ipfs) {
-        try {
-          ipfs = await create();
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
-    initIpfs();
-  }, []);
-
   const addToIpfs = useCallback(async () => {
     if (ipfs && name && description && image) {
       const { path: imageIpfsPath } = await ipfs.add(image.content);
@@ -76,7 +61,7 @@ export const InitializeTokenModal: React.FC = () => {
       );
       setIpfsPath(jsonIpfsPath);
     }
-  }, [name, description, image, setIpfsPath]);
+  }, [ipfs, name, description, image, setIpfsPath]);
 
   const initializeToken = useCallback(async () => {
     if (ipfsPath) {
@@ -86,15 +71,16 @@ export const InitializeTokenModal: React.FC = () => {
 
   return (
     <>
-      <Button onClick={onOpen}>Initialize Token</Button>
+      <Button onClick={onOpen} disabled={!ipfs?.isOnline()}>
+        Initialize new token
+      </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Initialize Token</ModalHeader>
+          <ModalHeader>Initialize new token</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <h4>IPFS status: {ipfs?.isOnline() ? "Online" : "Offline"}</h4>
             <InputGroup mt={4}>
               <InputLeftAddon>Token name</InputLeftAddon>
               <Input
