@@ -15,13 +15,6 @@ async function main() {
   await multiCall.deployed();
 
   console.log(`MultiCall deployed to ${multiCall.address}`);
-
-  const TokenStoreFactory = await ethers.getContractFactory("TokenStore");
-  const tokenStore = await TokenStoreFactory.deploy();
-
-  await tokenStore.deployed();
-
-  console.log(`TokenStore deployed to ${tokenStore.address}`);
 }
 
 main().catch((error) => {
