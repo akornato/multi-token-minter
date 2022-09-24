@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 contract TokenStore is ERC1155, Ownable {
@@ -11,6 +12,9 @@ contract TokenStore is ERC1155, Ownable {
 
     // Mapping from token ID to URI
     mapping(uint256 => string) private _tokenURIs;
+
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
     /**
      * @dev Emitted when `account` grants or revokes permission to `minter`.
@@ -24,13 +28,11 @@ contract TokenStore is ERC1155, Ownable {
 
     constructor() ERC1155("") {}
 
-    function initializeToken(uint256 id, string memory uri_) external {
-        if (bytes(_tokenURIs[id]).length == 0) {
-            _tokenURIs[id] = uri_;
-            _tokenMinterApprovals[id][_msgSender()] = true;
-        } else {
-            revert("TokenStore: Token is already initialized");
-        }
+    function initializeToken(string memory uri_) external {
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _tokenURIs[newTokenId] = uri_;
+        _tokenMinterApprovals[newTokenId][_msgSender()] = true;
     }
 
     function uri(uint256 id) public view override returns (string memory) {

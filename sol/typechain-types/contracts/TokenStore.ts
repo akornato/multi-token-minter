@@ -31,7 +31,7 @@ export interface TokenStoreInterface extends utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
-    "initializeToken(uint256,string)": FunctionFragment;
+    "initializeToken(string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isTokenMinterApproved(uint256,address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
@@ -75,7 +75,7 @@ export interface TokenStoreInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initializeToken",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
@@ -324,7 +324,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<[BigNumber[]]>;
 
     initializeToken(
-      id: PromiseOrValue<BigNumberish>,
       uri_: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -415,7 +414,6 @@ export interface TokenStore extends BaseContract {
   ): Promise<BigNumber[]>;
 
   initializeToken(
-    id: PromiseOrValue<BigNumberish>,
     uri_: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -506,7 +504,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<BigNumber[]>;
 
     initializeToken(
-      id: PromiseOrValue<BigNumberish>,
       uri_: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -667,7 +664,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<BigNumber>;
 
     initializeToken(
-      id: PromiseOrValue<BigNumberish>,
       uri_: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -759,7 +755,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initializeToken(
-      id: PromiseOrValue<BigNumberish>,
       uri_: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
