@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { ethers } from "ethers";
 import {
   Box,
   Button,
@@ -8,17 +9,45 @@ import {
   InputLeftAddon,
   Input,
 } from "@chakra-ui/react";
-import { useEtherBalance, useEthers } from "@usedapp/core";
+import { useEtherBalance, useEthers, useContractFunction } from "@usedapp/core";
 import { formatEther } from "@ethersproject/units";
 import { IpfsUpload } from "web/components/IpfsUpload";
+import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
+import { TokenStore } from "sol/typechain-types";
 
 const Home: NextPage = () => {
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [ipfsPath, setIpfsPath] = useState<string>();
-  const [tokenID, setTokenID] = useState<string>();
-  
-  const initializeToken = useCallback(async () => {}, []);
+  const [tokenId, setTokenId] = useState<string>();
+  const [amount, setAmount] = useState<number>();
+  const { send: sendInitializeToken } = useContractFunction(
+    new ethers.Contract(
+      process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
+      abi
+    ) as TokenStore,
+    "initializeToken"
+  );
+
+  const { send: sendMintToken } = useContractFunction(
+    new ethers.Contract(
+      process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
+      abi
+    ) as TokenStore,
+    "mint"
+  );
+
+  const initializeToken = useCallback(async () => {
+    if (tokenId && ipfsPath) {
+      sendInitializeToken(tokenId, ipfsPath);
+    }
+  }, [tokenId, ipfsPath, sendInitializeToken]);
+
+  const mintToken = useCallback(async () => {
+    if (account && tokenId && amount) {
+      sendMintToken(account, tokenId, amount, "0x0");
+    }
+  }, [account, tokenId, amount, sendMintToken]);
 
   return (
     <div>
@@ -45,11 +74,21 @@ const Home: NextPage = () => {
               <InputLeftAddon>Token ID</InputLeftAddon>
               <Input
                 type="string"
-                onChange={(event) => setTokenID(event.target.value)}
+                onChange={(event) => setTokenId(event.target.value)}
               />
             </InputGroup>
             <Button mt={4} colorScheme="blue" onClick={initializeToken}>
               Initialize Token
+            </Button>
+            <InputGroup mt={4}>
+              <InputLeftAddon>Amount</InputLeftAddon>
+              <Input
+                type="number"
+                onChange={(event) => setAmount(parseInt(event.target.value))}
+              />
+            </InputGroup>
+            <Button mt={4} colorScheme="blue" onClick={mintToken}>
+              Mint Token
             </Button>
           </>
         )}
