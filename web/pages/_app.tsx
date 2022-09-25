@@ -1,17 +1,23 @@
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
-import { DAppProvider, Config, Goerli, ChainId } from "@usedapp/core";
+import {
+  DAppProvider,
+  Config,
+  Goerli,
+  Hardhat,
+} from "@usedapp/core";
 import { getDefaultProvider } from "ethers";
 import { theme } from "web/constants/theme";
 
 const config: Config = {
+  networks: [Goerli, Hardhat],
   readOnlyChainId: Goerli.chainId,
   readOnlyUrls: {
     [Goerli.chainId]: getDefaultProvider("goerli"),
-    [ChainId.Hardhat]: "http://localhost:8545",
+    [Hardhat.chainId]: "http://localhost:8545",
   },
   multicallAddresses: {
-    [ChainId.Hardhat]: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    [Hardhat.chainId]: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   },
 };
 
