@@ -9,6 +9,9 @@ import {
   InputGroup,
   InputLeftAddon,
   Stack,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from "@chakra-ui/react";
 import {
   useEtherBalance,
@@ -16,6 +19,9 @@ import {
   useContractFunction,
   useCall,
   useCalls,
+  useNetwork,
+  Goerli,
+  Hardhat,
 } from "@usedapp/core";
 import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
@@ -29,6 +35,10 @@ const tokenStoreContract = new ethers.Contract(
 ) as TokenStore;
 
 const Home: NextPage = () => {
+  const { network } = useNetwork();
+  const isNetworkAllowed = [Goerli.chainId, Hardhat.chainId].includes(
+    network.chainId || 0
+  );
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [ipfs, setIpfs] = useState<IPFS>();
@@ -114,6 +124,17 @@ const Home: NextPage = () => {
     };
     initIpfs();
   }, [ipfs]);
+
+  if (!isNetworkAllowed) {
+    return (
+      <Alert status="error" mt={4}>
+        <AlertIcon />
+        <AlertDescription>
+          Switch to either Goerli or Hardhat network in Metamask
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div>
