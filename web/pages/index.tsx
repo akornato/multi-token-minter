@@ -42,28 +42,48 @@ const Home: NextPage = () => {
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [ipfs, setIpfs] = useState<IPFS>();
-  const [amount, setAmount] = useState<number>();
+  const [inputAmounts, setInputAmounts] = useState<{
+    [tokenId: number]: number;
+  }>({});
   const nextTokenIdCallResult = useCall({
     contract: tokenStoreContract,
     method: "nextTokenId",
     args: [],
   });
   const nextTokenId = nextTokenIdCallResult?.value?.[0].toNumber() || 0;
-  const uriResults = useCalls(
-    Array.from({ length: nextTokenId }, (_, index) => index).map((tokenId) => ({
+  const tokensIds = Array.from({ length: nextTokenId }, (_, index) => index);
+  const tokenBalancesResults = useCalls(
+    tokensIds.map((tokenId) => ({
+      contract: tokenStoreContract,
+      method: "balanceOf",
+      args: [account, tokenId],
+    }))
+  );
+  const tokenBalances: ethers.BigNumber[] = useMemo(() => {
+    const tokenBalances = tokenBalancesResults?.map(
+      (balance) => balance?.value?.[0]
+    );
+    // workaround to [undefined] being returned initially for some reason
+    if (tokenBalances?.length === 1 && tokenBalances[0] === undefined) {
+      return [];
+    }
+    return tokenBalances;
+  }, [tokenBalancesResults]);
+  const ipfsPathsResults = useCalls(
+    tokensIds.map((tokenId) => ({
       contract: tokenStoreContract,
       method: "uri",
       args: [tokenId],
     }))
   );
   const ipfsPaths = useMemo(() => {
-    const ipfsPaths = uriResults?.map((uri) => uri?.value?.[0]);
+    const ipfsPaths = ipfsPathsResults?.map((ifpsPath) => ifpsPath?.value?.[0]);
     // workaround to [undefined] being returned initially for some reason
     if (ipfsPaths?.length === 1 && ipfsPaths[0] === undefined) {
       return [];
     }
     return ipfsPaths;
-  }, [uriResults]);
+  }, [ipfsPathsResults]);
   const [metadatas, setMetadatas] = useState<
     { name: string; description: string; image: string }[]
   >([]);
@@ -104,11 +124,11 @@ const Home: NextPage = () => {
 
   const mintToken = useCallback(
     async (tokenId: number) => {
-      if (account && tokenId && amount) {
-        sendMintToken(account, tokenId, amount, []);
+      if (account && inputAmounts[tokenId]) {
+        sendMintToken(account, tokenId, inputAmounts[tokenId], []);
       }
     },
-    [account, amount, sendMintToken]
+    [account, inputAmounts, sendMintToken]
   );
 
   useEffect(() => {
@@ -125,17 +145,6 @@ const Home: NextPage = () => {
     initIpfs();
   }, [ipfs]);
 
-  if (!isNetworkAllowed) {
-    return (
-      <Alert status="error" mt={4}>
-        <AlertIcon />
-        <AlertDescription>
-          Switch to either Goerli or Hardhat network in Metamask
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
     <div>
       <Head>
@@ -147,6 +156,14 @@ const Home: NextPage = () => {
         <Button onClick={account ? deactivate : activateBrowserWallet}>
           {account ? "Disconnect" : "Connect"}
         </Button>
+        {account && !isNetworkAllowed && (
+          <Alert status="error" mt={4}>
+            <AlertIcon />
+            <AlertDescription>
+              Switch to either Goerli or Hardhat network in Metamask
+            </AlertDescription>
+          </Alert>
+        )}
         {account && <Box mt={4}>Account: {account}</Box>}
         {etherBalance && (
           <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>
@@ -166,14 +183,19 @@ const Home: NextPage = () => {
             />
             <Box>
               <Box>Name: {name}</Box>
-              <Box mt={2}>Description: {description}</Box>
+              <Box mt={1}>Description: {description}</Box>
+              <Box mt={1}>Balance: {tokenBalances[tokenId].toString()}</Box>
               <Stack mt={4} direction="row">
                 <InputGroup>
                   <InputLeftAddon>Amount</InputLeftAddon>
                   <Input
                     type="number"
+                    value={inputAmounts[tokenId] || ""}
                     onChange={(event) =>
-                      setAmount(parseInt(event.target.value))
+                      setInputAmounts((inputAmounts) => ({
+                        ...inputAmounts,
+                        [tokenId]: parseInt(event.target.value),
+                      }))
                     }
                   />
                 </InputGroup>
