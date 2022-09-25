@@ -52,6 +52,7 @@ const Home: NextPage = () => {
   });
   const nextTokenId = nextTokenIdCallResult?.value?.[0].toNumber() || 0;
   const tokensIds = Array.from({ length: nextTokenId }, (_, index) => index);
+
   const tokenBalancesResults = useCalls(
     tokensIds.map((tokenId) => ({
       contract: tokenStoreContract,
@@ -63,12 +64,13 @@ const Home: NextPage = () => {
     const tokenBalances = tokenBalancesResults?.map(
       (balance) => balance?.value?.[0]
     );
-    // workaround to [undefined] being returned initially for some reason
-    if (tokenBalances?.length === 1 && tokenBalances[0] === undefined) {
+    // workaround to array of undefineds being returned initially for some reason
+    if (tokenBalances?.length > 0 && tokenBalances[0] === undefined) {
       return [];
     }
     return tokenBalances;
   }, [tokenBalancesResults]);
+
   const ipfsPathsResults = useCalls(
     tokensIds.map((tokenId) => ({
       contract: tokenStoreContract,
@@ -78,8 +80,8 @@ const Home: NextPage = () => {
   );
   const ipfsPaths = useMemo(() => {
     const ipfsPaths = ipfsPathsResults?.map((ifpsPath) => ifpsPath?.value?.[0]);
-    // workaround to [undefined] being returned initially for some reason
-    if (ipfsPaths?.length === 1 && ipfsPaths[0] === undefined) {
+    // workaround to array of undefineds being returned initially for some reason
+    if (ipfsPaths?.length > 0 && ipfsPaths[0] === undefined) {
       return [];
     }
     return ipfsPaths;

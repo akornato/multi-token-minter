@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -47,20 +47,23 @@ export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
     "initializeToken"
   );
 
-  const addToIpfs = useCallback(async () => {
-    if (ipfs && name && description && image) {
-      const { path: imageIpfsPath } = await ipfs.add(image.content);
-      const { path: jsonIpfsPath } = await ipfs.add(
-        Buffer.from(
-          JSON.stringify({
-            name,
-            description,
-            image: imageIpfsPath,
-          })
-        )
-      );
-      setIpfsPath(jsonIpfsPath);
-    }
+  useEffect(() => {
+    const addToIpfs = async () => {
+      if (ipfs && name && description && image) {
+        const { path: imageIpfsPath } = await ipfs.add(image.content);
+        const { path: jsonIpfsPath } = await ipfs.add(
+          Buffer.from(
+            JSON.stringify({
+              name,
+              description,
+              image: imageIpfsPath,
+            })
+          )
+        );
+        setIpfsPath(jsonIpfsPath);
+      }
+    };
+    addToIpfs();
   }, [ipfs, name, description, image, setIpfsPath]);
 
   const initializeToken = useCallback(async () => {
@@ -120,11 +123,6 @@ export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
                   </AlertDescription>
                 </Alert>
               ))}
-            {ipfs && name && description && image && (
-              <Box mt={4}>
-                <Button onClick={addToIpfs}>Add metadata to IPFS</Button>
-              </Box>
-            )}
             {ipfsPath && (
               <>
                 <Box mt={4}>IPFS path: {ipfsPath}</Box>
