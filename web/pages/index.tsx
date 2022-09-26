@@ -12,6 +12,7 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   useEtherBalance,
@@ -40,9 +41,17 @@ const Home: NextPage = () => {
   );
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
+  const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
     [tokenId: number]: number;
   }>({});
+
+  useEffect(() => {
+    if (network.chainId && isNetworkAllowed) {
+      setLoadingTokens(true);
+    }
+  }, [network.chainId, isNetworkAllowed]);
+
   const nextTokenIdCallResult = useCall({
     contract: tokenStoreContract,
     method: "nextTokenId",
@@ -113,6 +122,7 @@ const Home: NextPage = () => {
           )
         );
         setImagedatas(imagedatas);
+        setLoadingTokens(false);
       }
     };
     getImagedatas();
@@ -160,6 +170,7 @@ const Home: NextPage = () => {
             <InitializeTokenModal />
           </Box>
         )}
+        {loadingTokens && <Spinner mt={4} size="xl" />}
         {metadatas?.map(({ name, description }, tokenId) => (
           <Stack key={tokenId} mt={4} direction="row">
             <img
@@ -170,7 +181,7 @@ const Home: NextPage = () => {
             <Box>
               <Box>Name: {name}</Box>
               <Box mt={1}>Description: {description}</Box>
-              <Box mt={1}>Balance: {tokenBalances[tokenId].toString()}</Box>
+              <Box mt={1}>Balance: {tokenBalances[tokenId]?.toString()}</Box>
               <Stack mt={4} direction="row">
                 <InputGroup>
                   <InputLeftAddon>Amount</InputLeftAddon>
