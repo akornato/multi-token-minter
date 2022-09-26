@@ -9,7 +9,7 @@ This is a simple Yarn v3 monorepo: `sol` workspace with ERC1155 based `TokenStor
 
 ## Local dev
 
-Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and fill in the missing env vars. The former has `NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS` with an address as deployed by the following script, which starts Next.js app at `http://localhost:3000`, the Hardhat network, and deploys both useDapp's [MultiCall](https://github.com/TrueFiEng/useDApp/blob/master/packages/core/src/constants/abi/MultiCall.json) and `TokenStore` contracts:
+Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and fill in the missing env vars. The following script starts Next.js app at `http://localhost:3000`, the Hardhat network, and deploys both useDapp's [MultiCall](https://github.com/TrueFiEng/useDApp/blob/master/packages/core/src/constants/abi/MultiCall.json) and `TokenStore` contracts:
 
 ```bash
 yarn dev

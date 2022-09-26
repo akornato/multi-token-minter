@@ -28,17 +28,19 @@ import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
 import { TokenStore } from "sol/typechain-types";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
-
-const tokenStoreContract = new ethers.Contract(
-  process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
-  abi
-) as TokenStore;
+import { contractAddresses } from "web/constants/contractAddresses";
 
 const Home: NextPage = () => {
   const { network } = useNetwork();
   const isNetworkAllowed = [Goerli.chainId, Hardhat.chainId].includes(
     network.chainId || 0
   );
+  const tokenStoreContract = network?.chainId
+    ? (new ethers.Contract(
+        contractAddresses[network?.chainId],
+        abi
+      ) as TokenStore)
+    : undefined;
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [loadingTokens, setLoadingTokens] = useState(false);
@@ -60,20 +62,25 @@ const Home: NextPage = () => {
     }
   }, [network.chainId, isNetworkAllowed]);
 
-  const nextTokenIdCallResult = useCall({
-    contract: tokenStoreContract,
-    method: "nextTokenId",
-    args: [],
-  });
+  const nextTokenIdCallResult = useCall(
+    tokenStoreContract && {
+      contract: tokenStoreContract,
+      method: "nextTokenId",
+      args: [],
+    }
+  );
   const nextTokenId = nextTokenIdCallResult?.value?.[0].toNumber() || 0;
   const tokensIds = Array.from({ length: nextTokenId }, (_, index) => index);
 
   const tokenBalancesResults = useCalls(
-    tokensIds.map((tokenId) => ({
-      contract: tokenStoreContract,
-      method: "balanceOf",
-      args: [account, tokenId],
-    }))
+    tokensIds.map(
+      (tokenId) =>
+        tokenStoreContract && {
+          contract: tokenStoreContract,
+          method: "balanceOf",
+          args: [account, tokenId],
+        }
+    )
   );
   const tokenBalances: ethers.BigNumber[] = useMemo(
     () =>
@@ -84,11 +91,14 @@ const Home: NextPage = () => {
   );
 
   const ipfsPathsResults = useCalls(
-    tokensIds.map((tokenId) => ({
-      contract: tokenStoreContract,
-      method: "uri",
-      args: [tokenId],
-    }))
+    tokensIds.map(
+      (tokenId) =>
+        tokenStoreContract && {
+          contract: tokenStoreContract,
+          method: "uri",
+          args: [tokenId],
+        }
+    )
   );
   const ipfsPaths: string[] = useMemo(
     () =>
@@ -170,7 +180,7 @@ const Home: NextPage = () => {
         )}
         {account && (
           <Box mt={4}>
-            <InitializeTokenModal />
+            <InitializeTokenModal tokenStoreContract={tokenStoreContract} />
           </Box>
         )}
         {loadingTokens && <Spinner mt={4} size="xl" />}

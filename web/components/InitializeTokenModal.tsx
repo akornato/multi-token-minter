@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -16,11 +16,8 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
-  Progress,
 } from "@chakra-ui/react";
-import { ethers } from "ethers";
 import { useContractFunction } from "@usedapp/core";
-import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
 import { TokenStore } from "sol/typechain-types";
 import { useFilePicker } from "use-file-picker";
 import { create } from "ipfs-http-client";
@@ -40,7 +37,9 @@ const ipfsClient = create({
   },
 });
 
-export const InitializeTokenModal: React.FC = () => {
+export const InitializeTokenModal: React.FC<{
+  tokenStoreContract?: TokenStore;
+}> = ({ tokenStoreContract }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -56,13 +55,7 @@ export const InitializeTokenModal: React.FC = () => {
   const image = filesContent[0];
   const [ipfsPath, setIpfsPath] = useState<string>();
   const { state: sendInitializeTokenState, send: sendInitializeToken } =
-    useContractFunction(
-      new ethers.Contract(
-        process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
-        abi
-      ) as TokenStore,
-      "initializeToken"
-    );
+    useContractFunction(tokenStoreContract, "initializeToken");
   const [isAddingToIpfs, setIsAddingToIpfs] = useState(false);
   const isInitializing = ["PendingSignature", "Mining"].includes(
     sendInitializeTokenState.status
