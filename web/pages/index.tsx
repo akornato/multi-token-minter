@@ -181,7 +181,9 @@ const Home: NextPage = () => {
             <Box>
               <Box>Name: {name}</Box>
               <Box mt={1}>Description: {description}</Box>
-              <Box mt={1}>Balance: {tokenBalances[tokenId]?.toString()}</Box>
+              <Box mt={1}>
+                Balance: {tokenBalances[tokenId]?.toString() || 0}
+              </Box>
               <Stack mt={4} direction="row">
                 <InputGroup>
                   <InputLeftAddon>Amount</InputLeftAddon>
@@ -196,7 +198,12 @@ const Home: NextPage = () => {
                     }
                   />
                 </InputGroup>
-                <Button onClick={() => mintToken(tokenId)}>Mint</Button>
+                <Button
+                  onClick={() => mintToken(tokenId)}
+                  disabled={!inputAmounts[tokenId]}
+                >
+                  Mint
+                </Button>
               </Stack>
             </Box>
           </Stack>
