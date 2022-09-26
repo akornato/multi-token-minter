@@ -45,10 +45,18 @@ const Home: NextPage = () => {
   const [inputAmounts, setInputAmounts] = useState<{
     [tokenId: number]: number;
   }>({});
+  const [metadatas, setMetadatas] = useState<
+    { name: string; description: string; image: string }[]
+  >([]);
+  const [imagedatas, setImagedatas] = useState<string[]>([]);
 
   useEffect(() => {
+    setMetadatas([]);
+    setImagedatas([]);
     if (network.chainId && isNetworkAllowed) {
       setLoadingTokens(true);
+    } else {
+      setLoadingTokens(false);
     }
   }, [network.chainId, isNetworkAllowed]);
 
@@ -90,11 +98,6 @@ const Home: NextPage = () => {
     [ipfsPathsResults]
   );
 
-  const [metadatas, setMetadatas] = useState<
-    { name: string; description: string; image: string }[]
-  >([]);
-  const [imagedatas, setImagedatas] = useState<string[]>([]);
-
   useEffect(() => {
     const getMetadatas = async () => {
       if (ipfsPaths.length > 0) {
@@ -122,8 +125,8 @@ const Home: NextPage = () => {
           )
         );
         setImagedatas(imagedatas);
-        setLoadingTokens(false);
       }
+      setLoadingTokens(false);
     };
     getImagedatas();
   }, [metadatas]);

@@ -55,18 +55,22 @@ export const InitializeTokenModal: React.FC = () => {
   });
   const image = filesContent[0];
   const [ipfsPath, setIpfsPath] = useState<string>();
-  const { send: sendInitializeToken } = useContractFunction(
-    new ethers.Contract(
-      process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
-      abi
-    ) as TokenStore,
-    "initializeToken"
+  const { state: sendInitializeTokenState, send: sendInitializeToken } =
+    useContractFunction(
+      new ethers.Contract(
+        process.env.NEXT_PUBLIC_TOKEN_STORE_CONTRACT_ADDRESS || "",
+        abi
+      ) as TokenStore,
+      "initializeToken"
+    );
+  const [isAddingToIpfs, setIsAddingToIpfs] = useState(false);
+  const isInitializing = ["PendingSignature", "Mining"].includes(
+    sendInitializeTokenState.status
   );
-  const [addingToIpfs, setAddingToIpfs] = useState(false);
 
   const addToIpfs = useCallback(async () => {
     if (name && description && image) {
-      setAddingToIpfs(true);
+      setIsAddingToIpfs(true);
       const { path: imageIpfsPath } = await ipfsClient.add(image.content);
       const { path: jsonIpfsPath } = await ipfsClient.add(
         Buffer.from(
@@ -78,7 +82,7 @@ export const InitializeTokenModal: React.FC = () => {
         )
       );
       setIpfsPath(jsonIpfsPath);
-      setAddingToIpfs(false);
+      setIsAddingToIpfs(false);
     }
   }, [name, description, image]);
 
@@ -137,7 +141,6 @@ export const InitializeTokenModal: React.FC = () => {
                   </AlertDescription>
                 </Alert>
               ))}
-            {addingToIpfs && <Progress mt={4} isIndeterminate />}
             {ipfsPath && (
               <>
                 <Box mt={4}>IPFS path: {ipfsPath}</Box>
@@ -150,6 +153,7 @@ export const InitializeTokenModal: React.FC = () => {
               mr={4}
               onClick={addToIpfs}
               disabled={!name || !description || !image}
+              isLoading={isAddingToIpfs}
             >
               Add to IPFS
             </Button>
@@ -157,6 +161,7 @@ export const InitializeTokenModal: React.FC = () => {
               mr={4}
               onClick={initializeToken}
               disabled={!name || !description || !image || !ipfsPath}
+              isLoading={isInitializing}
             >
               Initialize Token
             </Button>
