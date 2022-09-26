@@ -16,6 +16,7 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  Progress,
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useContractFunction } from "@usedapp/core";
@@ -61,25 +62,25 @@ export const InitializeTokenModal: React.FC = () => {
     ) as TokenStore,
     "initializeToken"
   );
+  const [addingToIpfs, setAddingToIpfs] = useState(false);
 
-  useEffect(() => {
-    const addToIpfs = async () => {
-      if (name && description && image) {
-        const { path: imageIpfsPath } = await ipfsClient.add(image.content);
-        const { path: jsonIpfsPath } = await ipfsClient.add(
-          Buffer.from(
-            JSON.stringify({
-              name,
-              description,
-              image: imageIpfsPath,
-            })
-          )
-        );
-        setIpfsPath(jsonIpfsPath);
-      }
-    };
-    addToIpfs();
-  }, [name, description, image, setIpfsPath]);
+  const addToIpfs = useCallback(async () => {
+    if (name && description && image) {
+      setAddingToIpfs(true);
+      const { path: imageIpfsPath } = await ipfsClient.add(image.content);
+      const { path: jsonIpfsPath } = await ipfsClient.add(
+        Buffer.from(
+          JSON.stringify({
+            name,
+            description,
+            image: imageIpfsPath,
+          })
+        )
+      );
+      setIpfsPath(jsonIpfsPath);
+      setAddingToIpfs(false);
+    }
+  }, [name, description, image]);
 
   const initializeToken = useCallback(async () => {
     if (ipfsPath) {
@@ -136,6 +137,7 @@ export const InitializeTokenModal: React.FC = () => {
                   </AlertDescription>
                 </Alert>
               ))}
+            {addingToIpfs && <Progress mt={4} isIndeterminate />}
             {ipfsPath && (
               <>
                 <Box mt={4}>IPFS path: {ipfsPath}</Box>
@@ -145,16 +147,20 @@ export const InitializeTokenModal: React.FC = () => {
 
           <ModalFooter>
             <Button
-              colorScheme="blue"
+              mr={4}
+              onClick={addToIpfs}
+              disabled={!name || !description || !image}
+            >
+              Add to IPFS
+            </Button>
+            <Button
               mr={4}
               onClick={initializeToken}
               disabled={!name || !description || !image || !ipfsPath}
             >
               Initialize Token
             </Button>
-            <Button colorScheme="blue" onClick={onClose}>
-              Close
-            </Button>
+            <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
