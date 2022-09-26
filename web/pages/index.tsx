@@ -35,12 +35,13 @@ const Home: NextPage = () => {
   const isNetworkAllowed = [Goerli.chainId, Hardhat.chainId].includes(
     network.chainId || 0
   );
-  const tokenStoreContract = network?.chainId
-    ? (new ethers.Contract(
-        contractAddresses[network?.chainId],
-        abi
-      ) as TokenStore)
-    : undefined;
+  const tokenStoreContract =
+    network?.chainId && isNetworkAllowed
+      ? (new ethers.Contract(
+          contractAddresses[network?.chainId],
+          abi
+        ) as TokenStore)
+      : undefined;
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
   const [loadingTokens, setLoadingTokens] = useState(false);
@@ -51,16 +52,6 @@ const Home: NextPage = () => {
     { name: string; description: string; image: string }[]
   >([]);
   const [imagedatas, setImagedatas] = useState<string[]>([]);
-
-  useEffect(() => {
-    setMetadatas([]);
-    setImagedatas([]);
-    if (network.chainId && isNetworkAllowed) {
-      setLoadingTokens(true);
-    } else {
-      setLoadingTokens(false);
-    }
-  }, [network.chainId, isNetworkAllowed]);
 
   const nextTokenIdCallResult = useCall(
     tokenStoreContract && {
@@ -83,10 +74,7 @@ const Home: NextPage = () => {
     )
   );
   const tokenBalances: ethers.BigNumber[] = useMemo(
-    () =>
-      tokenBalancesResults
-        ?.map((balance) => balance?.value?.[0])
-        .reduce((acc, cur) => (cur ? [...acc, cur] : acc), []),
+    () => tokenBalancesResults?.map((balance) => balance?.value?.[0]),
     [tokenBalancesResults]
   );
 
@@ -101,45 +89,37 @@ const Home: NextPage = () => {
     )
   );
   const ipfsPaths: string[] = useMemo(
-    () =>
-      ipfsPathsResults
-        ?.map((ifpsPath) => ifpsPath?.value?.[0])
-        .reduce((acc, cur) => (cur ? [...acc, cur] : acc), []),
+    () => ipfsPathsResults?.map((ifpsPath) => ifpsPath?.value?.[0]),
     [ipfsPathsResults]
   );
 
   useEffect(() => {
-    const getMetadatas = async () => {
-      if (ipfsPaths.length > 0) {
-        const metadatas = await Promise.all(
-          ipfsPaths.map((ipfsPath) =>
+    setLoadingTokens(true);
+    const getIpfsData = async () => {
+      const metadatas = await Promise.all(
+        ipfsPaths.map(
+          (ipfsPath) =>
+            ipfsPath &&
             fetch(
               `https://multi-token-minter.infura-ipfs.io/ipfs/${ipfsPath}`
             ).then((res) => res.json())
-          )
-        );
-        setMetadatas(metadatas);
-      }
-    };
-    getMetadatas();
-  }, [ipfsPaths]);
-
-  useEffect(() => {
-    const getImagedatas = async () => {
-      if (metadatas.length > 0) {
-        const imagedatas = await Promise.all(
-          metadatas.map(({ image }) =>
+        )
+      );
+      const imagedatas = await Promise.all(
+        metadatas.map(
+          (metadata) =>
+            metadata &&
             fetch(
-              `https://multi-token-minter.infura-ipfs.io/ipfs/${image}`
+              `https://multi-token-minter.infura-ipfs.io/ipfs/${metadata.image}`
             ).then((res) => res.text())
-          )
-        );
-        setImagedatas(imagedatas);
-      }
+        )
+      );
+      setMetadatas(metadatas);
+      setImagedatas(imagedatas);
       setLoadingTokens(false);
     };
-    getImagedatas();
-  }, [metadatas]);
+    getIpfsData();
+  }, [ipfsPaths]);
 
   const { send: sendMintToken } = useContractFunction(
     tokenStoreContract,
@@ -178,49 +158,52 @@ const Home: NextPage = () => {
         {etherBalance && (
           <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>
         )}
-        {account && (
+        {account && isNetworkAllowed && (
           <Box mt={4}>
             <InitializeTokenModal tokenStoreContract={tokenStoreContract} />
           </Box>
         )}
         {loadingTokens && <Spinner mt={4} size="xl" />}
-        {metadatas?.map(({ name, description }, tokenId) => (
-          <Stack key={tokenId} mt={4} direction="row">
-            <img
-              alt={name}
-              src={imagedatas[tokenId]}
-              style={{ maxWidth: "150px" }}
-            />
-            <Box>
-              <Box>Name: {name}</Box>
-              <Box mt={1}>Description: {description}</Box>
-              <Box mt={1}>
-                Balance: {tokenBalances[tokenId]?.toString() || 0}
-              </Box>
-              <Stack mt={4} direction="row">
-                <InputGroup>
-                  <InputLeftAddon>Amount</InputLeftAddon>
-                  <Input
-                    type="number"
-                    value={inputAmounts[tokenId] || ""}
-                    onChange={(event) =>
-                      setInputAmounts((inputAmounts) => ({
-                        ...inputAmounts,
-                        [tokenId]: parseInt(event.target.value),
-                      }))
-                    }
-                  />
-                </InputGroup>
-                <Button
-                  onClick={() => mintToken(tokenId)}
-                  disabled={!inputAmounts[tokenId]}
-                >
-                  Mint
-                </Button>
+        {metadatas?.map(
+          (metadata, tokenId) =>
+            metadata && (
+              <Stack key={tokenId} mt={4} direction="row">
+                <img
+                  alt={metadata.name}
+                  src={imagedatas[tokenId]}
+                  style={{ maxWidth: "150px" }}
+                />
+                <Box>
+                  <Box>Name: {metadata.name}</Box>
+                  <Box mt={1}>Description: {metadata.description}</Box>
+                  <Box mt={1}>
+                    Balance: {tokenBalances[tokenId]?.toString() || 0}
+                  </Box>
+                  <Stack mt={4} direction="row">
+                    <InputGroup>
+                      <InputLeftAddon>Amount</InputLeftAddon>
+                      <Input
+                        type="number"
+                        value={inputAmounts[tokenId] || ""}
+                        onChange={(event) =>
+                          setInputAmounts((inputAmounts) => ({
+                            ...inputAmounts,
+                            [tokenId]: parseInt(event.target.value),
+                          }))
+                        }
+                      />
+                    </InputGroup>
+                    <Button
+                      onClick={() => mintToken(tokenId)}
+                      disabled={!inputAmounts[tokenId]}
+                    >
+                      Mint
+                    </Button>
+                  </Stack>
+                </Box>
               </Stack>
-            </Box>
-          </Stack>
-        ))}
+            )
+        )}
       </Box>
     </div>
   );

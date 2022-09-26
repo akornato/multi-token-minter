@@ -66,13 +66,11 @@ export const InitializeTokenModal: React.FC<{
       setIsAddingToIpfs(true);
       const { path: imageIpfsPath } = await ipfsClient.add(image.content);
       const { path: jsonIpfsPath } = await ipfsClient.add(
-        Buffer.from(
-          JSON.stringify({
-            name,
-            description,
-            image: imageIpfsPath,
-          })
-        )
+        JSON.stringify({
+          name,
+          description,
+          image: imageIpfsPath,
+        })
       );
       setIpfsPath(jsonIpfsPath);
       setIsAddingToIpfs(false);
