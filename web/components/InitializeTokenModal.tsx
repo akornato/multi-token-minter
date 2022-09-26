@@ -20,11 +20,26 @@ import {
 import { ethers } from "ethers";
 import { useContractFunction } from "@usedapp/core";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
-import { IPFS } from "ipfs-core";
 import { TokenStore } from "sol/typechain-types";
 import { useFilePicker } from "use-file-picker";
+import { create } from "ipfs-http-client";
 
-export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
+const ipfsClient = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  headers: {
+    authorization:
+      "Basic " +
+      Buffer.from(
+        process.env.NEXT_PUBLIC_INFURA_PROJECT_ID +
+          ":" +
+          process.env.NEXT_PUBLIC_INFURA_API_KEY_SECRET
+      ).toString("base64"),
+  },
+});
+
+export const InitializeTokenModal: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -49,9 +64,9 @@ export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
 
   useEffect(() => {
     const addToIpfs = async () => {
-      if (ipfs && name && description && image) {
-        const { path: imageIpfsPath } = await ipfs.add(image.content);
-        const { path: jsonIpfsPath } = await ipfs.add(
+      if (name && description && image) {
+        const { path: imageIpfsPath } = await ipfsClient.add(image.content);
+        const { path: jsonIpfsPath } = await ipfsClient.add(
           Buffer.from(
             JSON.stringify({
               name,
@@ -64,7 +79,7 @@ export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
       }
     };
     addToIpfs();
-  }, [ipfs, name, description, image, setIpfsPath]);
+  }, [name, description, image, setIpfsPath]);
 
   const initializeToken = useCallback(async () => {
     if (ipfsPath) {
@@ -74,9 +89,7 @@ export const InitializeTokenModal: React.FC<{ ipfs?: IPFS }> = ({ ipfs }) => {
 
   return (
     <>
-      <Button onClick={onOpen} disabled={!ipfs?.isOnline()}>
-        Initialize new token
-      </Button>
+      <Button onClick={onOpen}>Initialize new token</Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

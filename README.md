@@ -3,7 +3,7 @@ This is a simple Yarn v3 monorepo: `sol` workspace with ERC1155 based `TokenStor
 - [OpenZeppelin ERC1155](https://docs.openzeppelin.com/contracts/3.x/erc1155)
 - [Hardhat](https://hardhat.org/)
 - [Next.js](https://nextjs.org/)
-- [IPFS](https://ipfs.io/)
+- [ipfs-http-client](https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client)
 
 `TokenStore` contract is deployed to Goerli network at [this address](https://goerli.etherscan.io/address/0x22448d0D2a0685c713e568272de1aFc7F8BEE644) and the app at https://multi-token-minter.vercel.app
 

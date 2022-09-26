@@ -26,7 +26,6 @@ import {
 import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
 import { TokenStore } from "sol/typechain-types";
-import { create, IPFS } from "ipfs-core";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
 
 const tokenStoreContract = new ethers.Contract(
@@ -41,7 +40,6 @@ const Home: NextPage = () => {
   );
   const { activateBrowserWallet, account, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
-  const [ipfs, setIpfs] = useState<IPFS>();
   const [inputAmounts, setInputAmounts] = useState<{
     [tokenId: number]: number;
   }>({});
@@ -60,16 +58,13 @@ const Home: NextPage = () => {
       args: [account, tokenId],
     }))
   );
-  const tokenBalances: ethers.BigNumber[] = useMemo(() => {
-    const tokenBalances = tokenBalancesResults?.map(
-      (balance) => balance?.value?.[0]
-    );
-    // workaround to array of undefineds being returned initially for some reason
-    if (tokenBalances?.length > 0 && tokenBalances[0] === undefined) {
-      return [];
-    }
-    return tokenBalances;
-  }, [tokenBalancesResults]);
+  const tokenBalances: ethers.BigNumber[] = useMemo(
+    () =>
+      tokenBalancesResults
+        ?.map((balance) => balance?.value?.[0])
+        .reduce((acc, cur) => (cur ? [...acc, cur] : acc), []),
+    [tokenBalancesResults]
+  );
 
   const ipfsPathsResults = useCalls(
     tokensIds.map((tokenId) => ({
@@ -78,14 +73,14 @@ const Home: NextPage = () => {
       args: [tokenId],
     }))
   );
-  const ipfsPaths = useMemo(() => {
-    const ipfsPaths = ipfsPathsResults?.map((ifpsPath) => ifpsPath?.value?.[0]);
-    // workaround to array of undefineds being returned initially for some reason
-    if (ipfsPaths?.length > 0 && ipfsPaths[0] === undefined) {
-      return [];
-    }
-    return ipfsPaths;
-  }, [ipfsPathsResults]);
+  const ipfsPaths: string[] = useMemo(
+    () =>
+      ipfsPathsResults
+        ?.map((ifpsPath) => ifpsPath?.value?.[0])
+        .reduce((acc, cur) => (cur ? [...acc, cur] : acc), []),
+    [ipfsPathsResults]
+  );
+
   const [metadatas, setMetadatas] = useState<
     { name: string; description: string; image: string }[]
   >([]);
@@ -96,7 +91,9 @@ const Home: NextPage = () => {
       if (ipfsPaths.length > 0) {
         const metadatas = await Promise.all(
           ipfsPaths.map((ipfsPath) =>
-            fetch(`https://ipfs.io/ipfs/${ipfsPath}`).then((res) => res.json())
+            fetch(
+              `https://multi-token-minter.infura-ipfs.io/ipfs/${ipfsPath}`
+            ).then((res) => res.json())
           )
         );
         setMetadatas(metadatas);
@@ -110,7 +107,9 @@ const Home: NextPage = () => {
       if (metadatas.length > 0) {
         const imagedatas = await Promise.all(
           metadatas.map(({ image }) =>
-            fetch(`https://ipfs.io/ipfs/${image}`).then((res) => res.text())
+            fetch(
+              `https://multi-token-minter.infura-ipfs.io/ipfs/${image}`
+            ).then((res) => res.text())
           )
         );
         setImagedatas(imagedatas);
@@ -132,20 +131,6 @@ const Home: NextPage = () => {
     },
     [account, inputAmounts, sendMintToken]
   );
-
-  useEffect(() => {
-    const initIpfs = async () => {
-      if (!ipfs) {
-        try {
-          const ipfs = await create();
-          setIpfs(ipfs);
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
-    initIpfs();
-  }, [ipfs]);
 
   return (
     <div>
@@ -170,10 +155,9 @@ const Home: NextPage = () => {
         {etherBalance && (
           <Box mt={4}>Balance: {formatEther(etherBalance)} ETH</Box>
         )}
-        <Box mt={4}>IPFS status: {ipfs?.isOnline() ? "Online" : "Offline"}</Box>
-        {account && ipfs?.isOnline && (
+        {account && (
           <Box mt={4}>
-            <InitializeTokenModal ipfs={ipfs} />
+            <InitializeTokenModal />
           </Box>
         )}
         {metadatas?.map(({ name, description }, tokenId) => (
@@ -181,7 +165,7 @@ const Home: NextPage = () => {
             <img
               alt={name}
               src={imagedatas[tokenId]}
-              style={{ maxWidth: "100px" }}
+              style={{ maxWidth: "150px" }}
             />
             <Box>
               <Box>Name: {name}</Box>
