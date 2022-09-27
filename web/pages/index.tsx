@@ -163,7 +163,13 @@ const Home: NextPage = () => {
             <InitializeTokenModal tokenStoreContract={tokenStoreContract} />
           </Box>
         )}
-        {loadingTokens && <Spinner mt={4} size="xl" />}
+        {loadingTokens && (
+          <Spinner
+            mt={4}
+            size="xl"
+            style={{ position: "fixed", top: 0, right: "1rem" }}
+          />
+        )}
         {metadatas?.map(
           (metadata, tokenId) =>
             metadata && (
