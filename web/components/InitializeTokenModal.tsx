@@ -20,22 +20,6 @@ import {
 import { useContractFunction } from "@usedapp/core";
 import { TokenStore } from "sol/typechain-types";
 import { useFilePicker } from "use-file-picker";
-import { create } from "ipfs-http-client";
-
-const ipfsClient = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  headers: {
-    authorization:
-      "Basic " +
-      Buffer.from(
-        process.env.NEXT_PUBLIC_INFURA_PROJECT_ID +
-          ":" +
-          process.env.NEXT_PUBLIC_INFURA_API_KEY_SECRET
-      ).toString("base64"),
-  },
-});
 
 export const InitializeTokenModal: React.FC<{
   tokenStoreContract?: TokenStore;
@@ -64,14 +48,18 @@ export const InitializeTokenModal: React.FC<{
   const addToIpfs = useCallback(async () => {
     if (name && description && image) {
       setIsAddingToIpfs(true);
-      const { path: imageIpfsPath } = await ipfsClient.add(image.content);
-      const { path: jsonIpfsPath } = await ipfsClient.add(
-        JSON.stringify({
+      const { path: imageIpfsPath } = await fetch("/api/ipfs/add", {
+        method: "POST",
+        body: image.content,
+      }).then((res) => res.json());
+      const { path: jsonIpfsPath } = await fetch("/api/ipfs/add", {
+        method: "POST",
+        body: JSON.stringify({
           name,
           description,
           image: imageIpfsPath,
-        })
-      );
+        }),
+      }).then((res) => res.json());
       setIpfsPath(jsonIpfsPath);
       setIsAddingToIpfs(false);
     }
