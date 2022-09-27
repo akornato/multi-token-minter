@@ -3,6 +3,7 @@ This is a simple Yarn v3 monorepo: `sol` workspace with ERC1155 based `TokenStor
 - [OpenZeppelin ERC1155](https://docs.openzeppelin.com/contracts/3.x/erc1155)
 - [Hardhat](https://hardhat.org/)
 - [Next.js](https://nextjs.org/)
+- [useDapp](https://usedapp.io/)
 - [ipfs-http-client](https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client)
 - [Infura IPFS gateway](https://infura.io/product/ipfs)
 
