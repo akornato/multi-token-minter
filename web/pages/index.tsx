@@ -95,7 +95,7 @@ const Home: NextPage = () => {
     [ipfsPathsResults]
   );
   const prevIpfsPaths = usePrevious(ipfsPaths);
- 
+
   useEffect(() => {
     if (isEqual(ipfsPaths, prevIpfsPaths)) return;
 
@@ -172,7 +172,7 @@ const Home: NextPage = () => {
           <Spinner
             mt={4}
             size="xl"
-            style={{ position: "fixed", top: 0, right: "1rem" }}
+            style={{ position: "fixed", bottom: "1rem", left: "1rem" }}
           />
         )}
         {metadatas?.map(
