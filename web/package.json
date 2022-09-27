@@ -14,9 +14,11 @@
     "@usedapp/core": "^1.1.5",
     "framer-motion": "^7.3.5",
     "ipfs-http-client": "^58.0.1",
+    "lodash": "^4.17.21",
     "next": "12.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-use": "^17.4.0",
     "use-file-picker": "^1.5.1"
   },
   "devDependencies": {

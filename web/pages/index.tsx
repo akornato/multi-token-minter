@@ -24,6 +24,8 @@ import {
   Goerli,
   Hardhat,
 } from "@usedapp/core";
+import { usePrevious } from "react-use";
+import { isEqual } from "lodash";
 import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
 import { TokenStore } from "sol/typechain-types";
@@ -92,8 +94,11 @@ const Home: NextPage = () => {
     () => ipfsPathsResults?.map((ifpsPath) => ifpsPath?.value?.[0]),
     [ipfsPathsResults]
   );
-
+  const prevIpfsPaths = usePrevious(ipfsPaths);
+ 
   useEffect(() => {
+    if (isEqual(ipfsPaths, prevIpfsPaths)) return;
+
     setLoadingTokens(true);
     const getIpfsData = async () => {
       const metadatas = await Promise.all(
@@ -119,7 +124,7 @@ const Home: NextPage = () => {
       setLoadingTokens(false);
     };
     getIpfsData();
-  }, [ipfsPaths]);
+  }, [ipfsPaths, prevIpfsPaths]);
 
   const { send: sendMintToken } = useContractFunction(
     tokenStoreContract,
