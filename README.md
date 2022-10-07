@@ -1,4 +1,8 @@
-This is a simple Yarn v3 monorepo: `sol` workspace with ERC1155 based `TokenStore` contract, and `web` workspace with the UI to add metadata to IPFS and mint the tokens.
+This demonstrates an ERC1155 contract with token metadata stored on IPFS, and a web app to view, mint and initalize new tokens.
+
+The `sol` yarn workspace has Hardhat Solidity stuff, and `web` is the Next.js app.
+
+Tech:
 
 - [OpenZeppelin ERC1155](https://docs.openzeppelin.com/contracts/3.x/erc1155)
 - [Hardhat](https://hardhat.org/)
@@ -7,12 +11,12 @@ This is a simple Yarn v3 monorepo: `sol` workspace with ERC1155 based `TokenStor
 - [ipfs-http-client](https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client)
 - [Infura IPFS gateway](https://infura.io/product/ipfs)
 
-`TokenStore` contract is deployed to Goerli network at [this address](https://goerli.etherscan.io/address/0x22448d0D2a0685c713e568272de1aFc7F8BEE644) and the app at https://multi-token-minter.vercel.app
+The web app is deployed at https://multi-token-minter.vercel.app
 
 ## Local dev
 
-Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and fill in the missing env vars. The following script starts Next.js app at `http://localhost:3000`, the Hardhat network, and deploys both useDapp's [MultiCall](https://github.com/TrueFiEng/useDApp/blob/master/packages/core/src/constants/abi/MultiCall.json) and `TokenStore` contracts:
+Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and fill in the missing env vars.
 
-```bash
-yarn dev
-```
+- `yarn web:dev` starts Next.js app at `http://localhost:3000`
+- `yarn sol:node` starts Hardhat Network
+- `yarn sol:deploy:localhost` deploys MakerDAO's [MultiCall](https://github.com/makerdao/multicall/blob/master/src/Multicall.sol) contract, required by useDapp, and `TokenStore` contract

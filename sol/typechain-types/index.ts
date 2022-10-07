@@ -20,5 +20,7 @@ export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC16
 export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
 export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
+export type { Multicall } from "./contracts/Multicall";
+export { Multicall__factory } from "./factories/contracts/Multicall__factory";
 export type { TokenStore } from "./contracts/TokenStore";
 export { TokenStore__factory } from "./factories/contracts/TokenStore__factory";

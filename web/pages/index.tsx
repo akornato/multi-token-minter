@@ -30,21 +30,25 @@ import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
 import { TokenStore } from "sol/typechain-types";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
-import { contractAddresses } from "web/constants/contractAddresses";
+import { tokenStoreAddresses } from "web/constants/addresses";
 
 const Home: NextPage = () => {
   const { network } = useNetwork();
   const isNetworkAllowed = [Goerli.chainId, Hardhat.chainId].includes(
     network.chainId || 0
   );
-  const tokenStoreContract =
-    network?.chainId && isNetworkAllowed
-      ? (new ethers.Contract(
-          contractAddresses[network?.chainId],
-          abi
-        ) as TokenStore)
-      : undefined;
+  const tokenStoreContract = useMemo(
+    () =>
+      network?.chainId && isNetworkAllowed
+        ? (new ethers.Contract(
+            tokenStoreAddresses[network?.chainId],
+            abi
+          ) as TokenStore)
+        : undefined,
+    [isNetworkAllowed, network?.chainId]
+  );
   const { activateBrowserWallet, account, deactivate } = useEthers();
+
   const etherBalance = useEtherBalance(account);
   const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
