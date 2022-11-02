@@ -19,7 +19,6 @@ import {
   useEthers,
   useCall,
   useCalls,
-  useNetwork,
   Goerli,
   Mumbai,
   Hardhat,
@@ -34,13 +33,13 @@ import { useAddresses } from "../hooks/useAddresses";
 import type { TokenStore } from "sol/typechain-types";
 
 const Home: NextPage = () => {
-  const { network } = useNetwork();
+  const { activateBrowserWallet, account, deactivate, chainId } = useEthers();
   const { tokenStoreAddress } = useAddresses();
   const isNetworkAllowed = [
     Goerli.chainId,
     Mumbai.chainId,
     Hardhat.chainId,
-  ].includes(network.chainId || 0);
+  ].includes(chainId || 0);
   const tokenStoreContract = useMemo(
     () =>
       tokenStoreAddress
@@ -48,7 +47,6 @@ const Home: NextPage = () => {
         : undefined,
     [tokenStoreAddress]
   );
-  const { activateBrowserWallet, account, deactivate } = useEthers();
   const { relayProvider } = useGSN();
   const etherBalance = useEtherBalance(account);
   const [loadingTokens, setLoadingTokens] = useState(false);

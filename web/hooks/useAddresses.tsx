@@ -1,4 +1,4 @@
-import { Goerli, Mumbai, Hardhat, useNetwork } from "@usedapp/core";
+import { Goerli, Mumbai, Hardhat, useEthers } from "@usedapp/core";
 import { address as hardhatMultiCallAddress } from "sol/build/Multicall.json";
 import { address as hardhatTokenStoreAddress } from "sol/build/TokenStore.json";
 import { address as paymasterAddress } from "sol/build/gsn/Paymaster.json";
@@ -22,13 +22,13 @@ const paymasterAddresses = {
 };
 
 export const useAddresses = () => {
-  const { network } = useNetwork();
+  const { chainId } = useEthers();
 
-  return network.chainId
+  return chainId
     ? {
-        multiCallAddress: multiCallAddresses[network.chainId],
-        tokenStoreAddress: tokenStoreAddresses[network.chainId],
-        paymasterAddress: paymasterAddresses[network.chainId],
+        multiCallAddress: multiCallAddresses[chainId],
+        tokenStoreAddress: tokenStoreAddresses[chainId],
+        paymasterAddress: paymasterAddresses[chainId],
       }
     : {};
 };
