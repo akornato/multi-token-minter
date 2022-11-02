@@ -1,22 +1,23 @@
-This demonstrates an ERC1155 contract with token metadata stored on IPFS, and a web app to view, mint and initalize new tokens.
+This demonstrates an ERC1155/ERC2771 meta transactions contract with token metadata stored on IPFS, and a gasless web app to view, mint and initalize new tokens.
 
-The `sol` yarn workspace has Hardhat Solidity stuff, and `web` is the Next.js app.
+Contracts are deployed to Goerli and Mumbai. The web app is deployed at https://multi-token-minter.vercel.app
 
 Tech:
 
-- [OpenZeppelin ERC1155](https://docs.openzeppelin.com/contracts/3.x/erc1155)
+- [OpenZeppelin ERC1155](https://docs.openzeppelin.com/contracts/4.x/api/token/erc1155)
+- [OpenZeppelin ERC2771Context](https://docs.openzeppelin.com/contracts/4.x/api/metatx)
+- [Gas Station Network](https://opengsn.org) for gasless experience
 - [Hardhat](https://hardhat.org/)
 - [Next.js](https://nextjs.org/)
 - [useDapp](https://usedapp.io/)
 - [ipfs-http-client](https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client)
 - [Infura IPFS gateway](https://infura.io/product/ipfs)
 
-The web app is deployed at https://multi-token-minter.vercel.app
-
 ## Local dev
 
 Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and fill in the missing env vars.
 
-- `yarn web:dev` starts Next.js app at `http://localhost:3000`
 - `yarn sol:node` starts Hardhat Network
-- `yarn sol:deploy:localhost` deploys MakerDAO's [MultiCall](https://github.com/makerdao/multicall/blob/master/src/Multicall.sol) contract, required by useDapp, and `TokenStore` contract
+- `yarn sol:gsn` deploys GSN contracts, and starts a relay server
+- `yarn sol:deploy:localhost` funds GSN Paymaster with 1 ETH, deploys `TokenStore` contract initialized with GSN forwarder address, and MakerDAO's [MultiCall](https://github.com/makerdao/multicall/blob/master/src/Multicall.sol) contract, required by useDapp, and `, as well as
+- `yarn web:dev` starts Next.js app at `http://localhost:3000`

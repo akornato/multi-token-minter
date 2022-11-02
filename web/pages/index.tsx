@@ -17,38 +17,39 @@ import {
 import {
   useEtherBalance,
   useEthers,
-  useContractFunction,
   useCall,
   useCalls,
   useNetwork,
   Goerli,
+  Mumbai,
   Hardhat,
 } from "@usedapp/core";
 import { usePrevious } from "react-use";
 import { isEqual } from "lodash";
 import { formatEther } from "@ethersproject/units";
 import { abi } from "sol/artifacts/contracts/TokenStore.sol/TokenStore.json";
-import { TokenStore } from "sol/typechain-types";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
-import { tokenStoreAddresses } from "web/constants/addresses";
+import { useGSN } from "web/hooks/useGSN";
+import { useAddresses } from "../hooks/useAddresses";
+import type { TokenStore } from "sol/typechain-types";
 
 const Home: NextPage = () => {
   const { network } = useNetwork();
-  const isNetworkAllowed = [Goerli.chainId, Hardhat.chainId].includes(
-    network.chainId || 0
-  );
+  const { tokenStoreAddress } = useAddresses();
+  const isNetworkAllowed = [
+    Goerli.chainId,
+    Mumbai.chainId,
+    Hardhat.chainId,
+  ].includes(network.chainId || 0);
   const tokenStoreContract = useMemo(
     () =>
-      network?.chainId && isNetworkAllowed
-        ? (new ethers.Contract(
-            tokenStoreAddresses[network?.chainId],
-            abi
-          ) as TokenStore)
+      tokenStoreAddress
+        ? (new ethers.Contract(tokenStoreAddress, abi) as TokenStore)
         : undefined,
-    [isNetworkAllowed, network?.chainId]
+    [tokenStoreAddress]
   );
   const { activateBrowserWallet, account, deactivate } = useEthers();
-
+  const { relayProvider } = useGSN();
   const etherBalance = useEtherBalance(account);
   const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
@@ -130,18 +131,18 @@ const Home: NextPage = () => {
     getIpfsData();
   }, [ipfsPaths, prevIpfsPaths]);
 
-  const { send: sendMintToken } = useContractFunction(
-    tokenStoreContract,
-    "mint"
-  );
-
   const mintToken = useCallback(
     async (tokenId: number) => {
-      if (account && inputAmounts[tokenId]) {
-        sendMintToken(account, tokenId, inputAmounts[tokenId], []);
+      if (account && inputAmounts[tokenId] && relayProvider) {
+        // @ts-ignore
+        const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
+        tokenStoreContract
+          // @ts-ignore
+          ?.connect(ethersProvider.getSigner(account))
+          .mint(account, tokenId, inputAmounts[tokenId], []);
       }
     },
-    [account, inputAmounts, sendMintToken]
+    [account, inputAmounts, tokenStoreContract, relayProvider]
   );
 
   return (
@@ -159,7 +160,8 @@ const Home: NextPage = () => {
           <Alert status="error" mt={4}>
             <AlertIcon />
             <AlertDescription>
-              Switch to either Goerli or Hardhat network in Metamask
+              Switch to either Ethereum Goerli, Polygon Mumbai or Hardhat
+              network in Metamask
             </AlertDescription>
           </Alert>
         )}

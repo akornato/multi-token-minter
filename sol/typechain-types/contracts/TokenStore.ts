@@ -34,10 +34,9 @@ export interface TokenStoreInterface extends utils.Interface {
     "initializeToken(string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isTokenMinterApproved(uint256,address)": FunctionFragment;
+    "isTrustedForwarder(address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
     "nextTokenId()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -45,7 +44,6 @@ export interface TokenStoreInterface extends utils.Interface {
     "supportsInterface(bytes4)": FunctionFragment;
     "tokenMinterApprovals(uint256,address)": FunctionFragment;
     "tokenURIs(uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
     "uri(uint256)": FunctionFragment;
   };
 
@@ -56,10 +54,9 @@ export interface TokenStoreInterface extends utils.Interface {
       | "initializeToken"
       | "isApprovedForAll"
       | "isTokenMinterApproved"
+      | "isTrustedForwarder"
       | "mint"
       | "nextTokenId"
-      | "owner"
-      | "renounceOwnership"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
       | "setApprovalForAll"
@@ -67,7 +64,6 @@ export interface TokenStoreInterface extends utils.Interface {
       | "supportsInterface"
       | "tokenMinterApprovals"
       | "tokenURIs"
-      | "transferOwnership"
       | "uri"
   ): FunctionFragment;
 
@@ -92,6 +88,10 @@ export interface TokenStoreInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isTrustedForwarder",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [
       PromiseOrValue<string>,
@@ -102,11 +102,6 @@ export interface TokenStoreInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "nextTokenId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -154,10 +149,6 @@ export interface TokenStoreInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "uri",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -179,14 +170,13 @@ export interface TokenStoreInterface extends utils.Interface {
     functionFragment: "isTokenMinterApproved",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTrustedForwarder",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nextTokenId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -214,15 +204,10 @@ export interface TokenStoreInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tokenURIs", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
 
   events: {
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
     "TokenMinterApproval(uint256,address,address,bool)": EventFragment;
     "TransferBatch(address,address,address,uint256[],uint256[])": EventFragment;
     "TransferSingle(address,address,address,uint256,uint256)": EventFragment;
@@ -230,7 +215,6 @@ export interface TokenStoreInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenMinterApproval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferBatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferSingle"): EventFragment;
@@ -248,18 +232,6 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface TokenMinterApprovalEventObject {
   id: BigNumber;
@@ -367,6 +339,11 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isTrustedForwarder(
+      forwarder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -376,12 +353,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<ContractTransaction>;
 
     nextTokenId(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     safeBatchTransferFrom(
       from: PromiseOrValue<string>,
@@ -430,11 +401,6 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     uri(
       id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -470,6 +436,11 @@ export interface TokenStore extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isTrustedForwarder(
+    forwarder: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   mint(
     to: PromiseOrValue<string>,
     id: PromiseOrValue<BigNumberish>,
@@ -479,12 +450,6 @@ export interface TokenStore extends BaseContract {
   ): Promise<ContractTransaction>;
 
   nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   safeBatchTransferFrom(
     from: PromiseOrValue<string>,
@@ -533,11 +498,6 @@ export interface TokenStore extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  transferOwnership(
-    newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   uri(
     id: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -573,6 +533,11 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    isTrustedForwarder(
+      forwarder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -582,10 +547,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<void>;
 
     nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     safeBatchTransferFrom(
       from: PromiseOrValue<string>,
@@ -634,11 +595,6 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     uri(
       id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -656,15 +612,6 @@ export interface TokenStore extends BaseContract {
       operator?: PromiseOrValue<string> | null,
       approved?: null
     ): ApprovalForAllEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
 
     "TokenMinterApproval(uint256,address,address,bool)"(
       id?: PromiseOrValue<BigNumberish> | null,
@@ -746,6 +693,11 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isTrustedForwarder(
+      forwarder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -755,12 +707,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<BigNumber>;
 
     nextTokenId(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     safeBatchTransferFrom(
       from: PromiseOrValue<string>,
@@ -807,11 +753,6 @@ export interface TokenStore extends BaseContract {
     tokenURIs(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     uri(
@@ -850,6 +791,11 @@ export interface TokenStore extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isTrustedForwarder(
+      forwarder: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     mint(
       to: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -859,12 +805,6 @@ export interface TokenStore extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     nextTokenId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     safeBatchTransferFrom(
       from: PromiseOrValue<string>,
@@ -911,11 +851,6 @@ export interface TokenStore extends BaseContract {
     tokenURIs(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     uri(

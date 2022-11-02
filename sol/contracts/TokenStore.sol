@@ -2,10 +2,11 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract TokenStore is ERC1155, Ownable {
+contract TokenStore is ERC1155, ERC2771Context {
     // Mapping from token ID to minter approvals
     mapping(uint256 => mapping(address => bool)) public tokenMinterApprovals;
 
@@ -24,7 +25,7 @@ contract TokenStore is ERC1155, Ownable {
         bool approved
     );
 
-    constructor() ERC1155("") {
+    constructor(address forwarder) ERC1155("") ERC2771Context(forwarder) {
         nextTokenId = 0;
     }
 
@@ -74,5 +75,23 @@ contract TokenStore is ERC1155, Ownable {
         returns (bool)
     {
         return tokenMinterApprovals[id][minter];
+    }
+
+    function _msgSender()
+        internal
+        view
+        override(Context, ERC2771Context)
+        returns (address)
+    {
+        return ERC2771Context._msgSender();
+    }
+
+    function _msgData()
+        internal
+        view
+        override(Context, ERC2771Context)
+        returns (bytes calldata)
+    {
+        return ERC2771Context._msgData();
     }
 }

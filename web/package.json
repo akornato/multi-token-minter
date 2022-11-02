@@ -11,6 +11,7 @@
     "@chakra-ui/react": "^2.3.2",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@opengsn/provider": "^3.0.0-beta.1",
     "@usedapp/core": "^1.1.5",
     "framer-motion": "^7.3.5",
     "ipfs-http-client": "^58.0.1",

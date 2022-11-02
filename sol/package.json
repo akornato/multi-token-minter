@@ -5,8 +5,10 @@
     "sol:node": "hardhat node",
     "sol:compile": "hardhat compile",
     "sol:test": "hardhat test",
+    "sol:gsn": "gsn start",
     "sol:deploy:localhost": "hardhat run --network localhost ./scripts/deploy.localhost.ts",
-    "sol:deploy:goerli": "hardhat run --network goerli scripts/deploy.goerli.ts",
+    "sol:deploy:goerli": "hardhat run --network goerli scripts/deploy.ts",
+    "sol:deploy:mumbai": "hardhat run --network mumbai scripts/deploy.ts",
     "sol:verify": "hardhat verify"
   },
   "dependencies": {
@@ -17,6 +19,8 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
+    "@opengsn/cli": "^3.0.0-beta.1",
+    "@opengsn/dev": "^3.0.0-beta.1",
     "@openzeppelin/contracts": "^4.7.3",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.3",

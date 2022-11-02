@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { ethers } from "ethers";
 import {
   Modal,
   ModalOverlay,
@@ -17,13 +18,15 @@ import {
   InputGroup,
   InputLeftAddon,
 } from "@chakra-ui/react";
-import { useContractFunction } from "@usedapp/core";
+import { useContractFunction, useEthers } from "@usedapp/core";
 import { TokenStore } from "sol/typechain-types";
 import { useFilePicker } from "use-file-picker";
+import { useGSN } from "web/hooks/useGSN";
 
 export const InitializeTokenModal: React.FC<{
   tokenStoreContract?: TokenStore;
 }> = ({ tokenStoreContract }) => {
+  const { account } = useEthers();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -44,6 +47,7 @@ export const InitializeTokenModal: React.FC<{
   const isInitializing = ["PendingSignature", "Mining"].includes(
     sendInitializeTokenState.status
   );
+  const { relayProvider } = useGSN();
 
   const addToIpfs = useCallback(async () => {
     if (name && description && image) {
@@ -67,9 +71,14 @@ export const InitializeTokenModal: React.FC<{
 
   const initializeToken = useCallback(async () => {
     if (ipfsPath) {
-      sendInitializeToken(ipfsPath);
+      // @ts-ignore
+      const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
+      tokenStoreContract
+        // @ts-ignore
+        ?.connect(ethersProvider.getSigner(account))
+        .initializeToken(ipfsPath);
     }
-  }, [ipfsPath, sendInitializeToken]);
+  }, [ipfsPath, relayProvider, tokenStoreContract, account]);
 
   return (
     <>
