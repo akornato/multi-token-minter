@@ -12,7 +12,7 @@
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@opengsn/provider": "^3.0.0-beta.1",
-    "@usedapp/core": "^1.1.5",
+    "@usedapp/core": "^1.2.0",
     "framer-motion": "^7.3.5",
     "ipfs-http-client": "^58.0.1",
     "lodash": "^4.17.21",
