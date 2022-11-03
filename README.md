@@ -1,4 +1,4 @@
-This demonstrates an ERC1155/ERC2771 meta transactions contract with token metadata stored on IPFS, and a gasless web app to view, mint and initalize new tokens.
+This demonstrates an ERC1155/ERC2771 semi-fungible contract with meta transactions and token metadata stored on IPFS, as well as a gasless web app to initialize, view and mint new tokens.
 
 Contracts are deployed to Goerli and Mumbai. The web app is deployed at https://multi-token-minter.vercel.app
 
