@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { ethers } from "ethers";
 import {
   Modal,
   ModalOverlay,
@@ -18,16 +17,11 @@ import {
   InputGroup,
   InputLeftAddon,
 } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
-import { abi as tokenStoreAbi } from "web/types/TokenStore";
 import { useFilePicker } from "use-file-picker";
-import { useGSN } from "web/hooks/useGSN";
-import { useAddresses } from "web/hooks/useAddresses";
+import { useRelayedTokenStore } from "web/hooks/useRelayedTokenStore";
 
 export const InitializeTokenModal: React.FC = () => {
-  const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { tokenStoreAddress } = useAddresses();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [
@@ -42,7 +36,7 @@ export const InitializeTokenModal: React.FC = () => {
   const image = filesContent[0];
   const [ipfsPath, setIpfsPath] = useState<string>();
   const [isAddingToIpfs, setIsAddingToIpfs] = useState(false);
-  const { relayProvider } = useGSN();
+  const { initializeToken } = useRelayedTokenStore();
 
   const addToIpfs = useCallback(async () => {
     if (name && description && image) {
@@ -63,16 +57,6 @@ export const InitializeTokenModal: React.FC = () => {
       setIsAddingToIpfs(false);
     }
   }, [name, description, image]);
-
-  const initializeToken = useCallback(async () => {
-    if (ipfsPath && tokenStoreAddress) {
-      // @ts-ignore
-      const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
-      new ethers.Contract(tokenStoreAddress, tokenStoreAbi)
-        ?.connect(ethersProvider.getSigner(address))
-        .initializeToken(ipfsPath);
-    }
-  }, [ipfsPath, relayProvider, tokenStoreAddress, address]);
 
   return (
     <>
@@ -141,7 +125,7 @@ export const InitializeTokenModal: React.FC = () => {
             </Button>
             <Button
               mr={4}
-              onClick={initializeToken}
+              onClick={() => ipfsPath && initializeToken(ipfsPath)}
               disabled={!name || !description || !image || !ipfsPath}
             >
               Initialize Token

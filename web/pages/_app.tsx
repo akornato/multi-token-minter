@@ -3,7 +3,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { WagmiConfig, createClient, configureChains, chain } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { theme } from "web/constants/theme";
-import { GSNProvider } from "web/hooks/useGSN";
+import { RelayedTokenStoreProvider } from "web/hooks/useRelayedTokenStore";
 
 const { provider, webSocketProvider } = configureChains(
   [chain.goerli, chain.polygon, chain.hardhat],
@@ -18,11 +18,11 @@ const client = createClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={client}>
-      <GSNProvider>
+      <RelayedTokenStoreProvider>
         <ChakraProvider theme={theme}>
           <Component {...pageProps} />
         </ChakraProvider>
-      </GSNProvider>
+      </RelayedTokenStoreProvider>
     </WagmiConfig>
   );
 }

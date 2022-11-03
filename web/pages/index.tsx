@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { ethers } from "ethers";
@@ -29,7 +29,7 @@ import { usePrevious } from "react-use";
 import { isEqual } from "lodash";
 import { abi as tokenStoreAbi } from "web/types/TokenStore";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
-import { useGSN } from "web/hooks/useGSN";
+import { useRelayedTokenStore } from "web/hooks/useRelayedTokenStore";
 import { useAddresses } from "../hooks/useAddresses";
 
 const Home: NextPage = () => {
@@ -45,7 +45,7 @@ const Home: NextPage = () => {
     chains.polygonMumbai.id,
     chains.hardhat.id,
   ].includes(chain?.id || 0);
-  const { relayProvider } = useGSN();
+  const { mintToken } = useRelayedTokenStore();
   const { data: balance } = useBalance(address);
   const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
@@ -64,7 +64,7 @@ const Home: NextPage = () => {
   const nextTokenId = nextTokenIdData?.toNumber() || 0;
   const tokensIds = Array.from({ length: nextTokenId }, (_, index) => index);
 
-  const { data: tokenBalancesData, status: tokenBalancesStatus } =
+  const { data: tokenBalancesData } =
     useContractReads({
       contracts: tokensIds.map((tokenId) => ({
         address: tokenStoreAddress,
@@ -77,7 +77,7 @@ const Home: NextPage = () => {
     | ethers.BigNumber[]
     | undefined;
 
-  const { data: ipfsPathsData, status: ipfsPathsStatus } = useContractReads({
+  const { data: ipfsPathsData } = useContractReads({
     contracts: tokensIds.map((tokenId) => ({
       address: tokenStoreAddress,
       abi: tokenStoreAbi,
@@ -119,24 +119,6 @@ const Home: NextPage = () => {
     };
     getIpfsData();
   }, [ipfsPaths, prevIpfsPaths]);
-
-  const mintToken = useCallback(
-    async (tokenId: number) => {
-      if (
-        address &&
-        inputAmounts[tokenId] &&
-        relayProvider &&
-        tokenStoreAddress
-      ) {
-        // @ts-ignore
-        const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
-        new ethers.Contract(tokenStoreAddress, tokenStoreAbi)
-          ?.connect(ethersProvider.getSigner(address))
-          .mint(address, tokenId, inputAmounts[tokenId], []);
-      }
-    },
-    [address, inputAmounts, tokenStoreAddress, relayProvider]
-  );
 
   return (
     <div>
@@ -207,7 +189,9 @@ const Home: NextPage = () => {
                         />
                       </InputGroup>
                       <Button
-                        onClick={() => mintToken(tokenId)}
+                        onClick={() =>
+                          mintToken(tokenId, inputAmounts[tokenId])
+                        }
                         disabled={!inputAmounts[tokenId]}
                       >
                         Mint
