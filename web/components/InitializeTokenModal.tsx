@@ -18,16 +18,16 @@ import {
   InputGroup,
   InputLeftAddon,
 } from "@chakra-ui/react";
-import { useContractFunction, useEthers } from "@usedapp/core";
-import { TokenStore } from "sol/typechain-types";
+import { useAccount } from "wagmi";
+import { abi as tokenStoreAbi } from "web/types/TokenStore";
 import { useFilePicker } from "use-file-picker";
 import { useGSN } from "web/hooks/useGSN";
+import { useAddresses } from "web/hooks/useAddresses";
 
-export const InitializeTokenModal: React.FC<{
-  tokenStoreContract?: TokenStore;
-}> = ({ tokenStoreContract }) => {
-  const { account } = useEthers();
+export const InitializeTokenModal: React.FC = () => {
+  const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { tokenStoreAddress } = useAddresses();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [
@@ -41,12 +41,7 @@ export const InitializeTokenModal: React.FC<{
   });
   const image = filesContent[0];
   const [ipfsPath, setIpfsPath] = useState<string>();
-  const { state: sendInitializeTokenState, send: sendInitializeToken } =
-    useContractFunction(tokenStoreContract, "initializeToken");
   const [isAddingToIpfs, setIsAddingToIpfs] = useState(false);
-  const isInitializing = ["PendingSignature", "Mining"].includes(
-    sendInitializeTokenState.status
-  );
   const { relayProvider } = useGSN();
 
   const addToIpfs = useCallback(async () => {
@@ -70,15 +65,14 @@ export const InitializeTokenModal: React.FC<{
   }, [name, description, image]);
 
   const initializeToken = useCallback(async () => {
-    if (ipfsPath) {
+    if (ipfsPath && tokenStoreAddress) {
       // @ts-ignore
       const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
-      tokenStoreContract
-        // @ts-ignore
-        ?.connect(ethersProvider.getSigner(account))
+      new ethers.Contract(tokenStoreAddress, tokenStoreAbi)
+        ?.connect(ethersProvider.getSigner(address))
         .initializeToken(ipfsPath);
     }
-  }, [ipfsPath, relayProvider, tokenStoreContract, account]);
+  }, [ipfsPath, relayProvider, tokenStoreAddress, address]);
 
   return (
     <>
@@ -149,7 +143,6 @@ export const InitializeTokenModal: React.FC<{
               mr={4}
               onClick={initializeToken}
               disabled={!name || !description || !image || !ipfsPath}
-              isLoading={isInitializing}
             >
               Initialize Token
             </Button>

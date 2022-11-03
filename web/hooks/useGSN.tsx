@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
-import { RelayProvider, Web3ProviderBaseInterface } from "@opengsn/provider";
+import { RelayProvider } from "@opengsn/provider";
 import { useAddresses } from "web/hooks/useAddresses";
-
-declare global {
-  interface Window {
-    ethereum?: Web3ProviderBaseInterface;
-  }
-}
 
 const GSNContext = createContext<{
   relayProvider?: RelayProvider;
@@ -22,6 +16,7 @@ export const GSNProvider: React.FC<{ children: React.ReactNode }> = ({
     const getRelayProvider = async () => {
       if (window.ethereum) {
         const relayProvider = await RelayProvider.newProvider({
+          // @ts-ignore
           provider: window.ethereum,
           config: {
             paymasterAddress,
