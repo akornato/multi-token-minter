@@ -6,7 +6,7 @@ import { theme } from "web/constants/theme";
 import { RelayedTokenStoreProvider } from "web/hooks/useRelayedTokenStore";
 
 const { provider, webSocketProvider } = configureChains(
-  [chain.goerli, chain.polygon, chain.hardhat],
+  [chain.polygonMumbai, chain.hardhat],
   [publicProvider()]
 );
 

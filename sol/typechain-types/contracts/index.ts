@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { TokenStore } from "./TokenStore";
+export type { WhitelistPaymaster } from "./WhitelistPaymaster";

@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { TokenStore__factory } from "./TokenStore__factory";
+export { WhitelistPaymaster__factory } from "./WhitelistPaymaster__factory";

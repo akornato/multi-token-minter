@@ -13,6 +13,34 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "BasePaymaster",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BasePaymaster__factory>;
+    getContractFactory(
+      name: "IForwarder",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IForwarder__factory>;
+    getContractFactory(
+      name: "IERC2771Recipient",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC2771Recipient__factory>;
+    getContractFactory(
+      name: "IPaymaster",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IPaymaster__factory>;
+    getContractFactory(
+      name: "IRelayHub",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRelayHub__factory>;
+    getContractFactory(
+      name: "IStakeManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IStakeManager__factory>;
+    getContractFactory(
+      name: "GsnEip712Library",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GsnEip712Library__factory>;
+    getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
@@ -37,6 +65,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC1155Receiver__factory>;
     getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
+    getContractFactory(
       name: "ERC165",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC165__factory>;
@@ -48,7 +80,46 @@ declare module "hardhat/types/runtime" {
       name: "TokenStore",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenStore__factory>;
+    getContractFactory(
+      name: "WhitelistPaymaster",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.WhitelistPaymaster__factory>;
 
+    getContractAt(
+      name: "BasePaymaster",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BasePaymaster>;
+    getContractAt(
+      name: "IForwarder",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IForwarder>;
+    getContractAt(
+      name: "IERC2771Recipient",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC2771Recipient>;
+    getContractAt(
+      name: "IPaymaster",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IPaymaster>;
+    getContractAt(
+      name: "IRelayHub",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRelayHub>;
+    getContractAt(
+      name: "IStakeManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IStakeManager>;
+    getContractAt(
+      name: "GsnEip712Library",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GsnEip712Library>;
     getContractAt(
       name: "Ownable",
       address: string,
@@ -80,6 +151,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC1155Receiver>;
     getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
+    getContractAt(
       name: "ERC165",
       address: string,
       signer?: ethers.Signer
@@ -94,6 +170,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TokenStore>;
+    getContractAt(
+      name: "WhitelistPaymaster",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.WhitelistPaymaster>;
 
     // default types
     getContractFactory(

@@ -41,12 +41,13 @@ const Home: NextPage = () => {
   const { address } = useAccount();
   const { tokenStoreAddress } = useAddresses();
   const isNetworkAllowed = [
-    chains.goerli.id,
     chains.polygonMumbai.id,
     chains.hardhat.id,
   ].includes(chain?.id || 0);
   const { relayedTokenStoreContract } = useRelayedTokenStore();
-  const { data: balance } = useBalance(address);
+  const { data: balance } = useBalance({
+    addressOrName: address,
+  });
   const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
     [tokenId: number]: number;
@@ -135,8 +136,7 @@ const Home: NextPage = () => {
           <Alert status="error" mt={4}>
             <AlertIcon />
             <AlertDescription>
-              Switch to either Ethereum Goerli, Polygon Mumbai or Hardhat
-              network in Metamask
+              Switch to either Polygon Mumbai or Hardhat network in Metamask
             </AlertDescription>
           </Alert>
         )}

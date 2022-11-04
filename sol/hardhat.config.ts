@@ -10,12 +10,8 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {},
-    goerli: {
-      url: process.env.ALCHEMY_GOERLI_URL,
-      accounts: [process.env.PRIVATE_KEY || ""],
-    },
     mumbai: {
-      url: process.env.ALCHEMY_MUMBAI_URL,
+      url: process.env.ALCHEMY_URL,
       accounts: [process.env.PRIVATE_KEY || ""],
     },
   },

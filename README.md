@@ -1,6 +1,6 @@
 This demonstrates an ERC1155/ERC2771 semi-fungible contract with meta transactions and token metadata stored on IPFS, as well as a gasless web app to initialize, view and mint new tokens.
 
-Contracts are deployed to Goerli and Mumbai. The web app is deployed at https://multi-token-minter.vercel.app
+Contracts are deployed to Polygon Mumbai. The web app is deployed at https://multi-token-minter.vercel.app
 
 Tech:
 
@@ -19,5 +19,5 @@ Copy `sol/.env.example` to `sol/.env` and `web/.env.example` to `web/.env` and f
 
 - `yarn sol:node` starts Hardhat Network
 - `yarn sol:gsn` deploys GSN contracts, and starts a relay server
-- `yarn sol:deploy:localhost` deploys `TokenStore` contract initialized with GSN forwarder address
+- `yarn sol:deploy:localhost` deploys `TokenStore` and `WhitelistPaymaster` contracts
 - `yarn web:dev` starts Next.js app at `http://localhost:3000`
