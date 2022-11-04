@@ -1,9 +1,6 @@
 {
   "private": true,
   "name": "multi-token-minter",
-  "scripts": {
-    "dev": "yarn web:dev & yarn sol:node & sleep 3 && yarn sol:deploy"
-  },
   "workspaces": [
     "sol",
     "web"
