@@ -36,7 +36,8 @@ export const InitializeTokenModal: React.FC = () => {
   const image = filesContent[0];
   const [ipfsPath, setIpfsPath] = useState<string>();
   const [isAddingToIpfs, setIsAddingToIpfs] = useState(false);
-  const { initializeToken } = useRelayedTokenStore();
+  const { relayedTokenStoreContract } = useRelayedTokenStore();
+  const [isInitializing, setIsInitializing] = useState(false);
 
   const addToIpfs = useCallback(async () => {
     if (name && description && image) {
@@ -125,7 +126,18 @@ export const InitializeTokenModal: React.FC = () => {
             </Button>
             <Button
               mr={4}
-              onClick={() => ipfsPath && initializeToken(ipfsPath)}
+              onClick={async () => {
+                if (ipfsPath && relayedTokenStoreContract) {
+                  setIsInitializing(true);
+                  try {
+                    await relayedTokenStoreContract.initializeToken(ipfsPath);
+                  } catch (e) {
+                  } finally {
+                    setIsInitializing(false);
+                  }
+                }
+              }}
+              isLoading={isInitializing}
               disabled={!name || !description || !image || !ipfsPath}
             >
               Initialize Token

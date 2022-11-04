@@ -1,19 +1,13 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  createContext,
-} from "react";
+import React, { useState, useEffect, useContext, createContext } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import { RelayProvider } from "@opengsn/provider";
 import { useAddresses } from "web/hooks/useAddresses";
-import { abi as tokenStoreAbi } from "web/types/TokenStore";
+import { TokenStore__factory } from "web/typechain-types/factories/contracts/TokenStore__factory";
+import { TokenStore } from "web/typechain-types/contracts/TokenStore";
 
 const RelayedTokenStoreContext = createContext<{
-  mintToken: (tokenId: number, amount: number) => void;
-  initializeToken: (ipfsPath: string) => void;
+  relayedTokenStoreContract?: TokenStore;
 }>(undefined!);
 
 export const RelayedTokenStoreProvider: React.FC<{
@@ -21,33 +15,23 @@ export const RelayedTokenStoreProvider: React.FC<{
 }> = ({ children }) => {
   const [relayProvider, setRelayProvider] = useState<RelayProvider>();
   const { tokenStoreAddress, paymasterAddress } = useAddresses();
+  const [relayedTokenStoreContract, setRelayedTokenStoreContract] =
+    useState<TokenStore>();
   const { address } = useAccount();
 
-  const mintToken = useCallback(
-    async (tokenId: number, amount: number) => {
-      if (relayProvider && tokenStoreAddress && address) {
-        // @ts-ignore
-        const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
-        new ethers.Contract(tokenStoreAddress, tokenStoreAbi)
-          ?.connect(ethersProvider.getSigner(address))
-          .mint(address, tokenId, amount, []);
-      }
-    },
-    [relayProvider, tokenStoreAddress, address]
-  );
-
-  const initializeToken = useCallback(
-    async (ipfsPath: string) => {
-      if (relayProvider && tokenStoreAddress && address) {
-        // @ts-ignore
-        const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
-        new ethers.Contract(tokenStoreAddress, tokenStoreAbi)
-          ?.connect(ethersProvider.getSigner(address))
-          .initializeToken(ipfsPath);
-      }
-    },
-    [relayProvider, tokenStoreAddress, address]
-  );
+  useEffect(() => {
+    if (relayProvider) {
+      // @ts-ignore
+      const ethersProvider = new ethers.providers.Web3Provider(relayProvider);
+      const tokenStoreContract = tokenStoreAddress
+        ? (new ethers.Contract(
+            tokenStoreAddress,
+            TokenStore__factory.abi
+          )?.connect(ethersProvider.getSigner(address)) as TokenStore)
+        : undefined;
+      setRelayedTokenStoreContract(tokenStoreContract);
+    }
+  }, [relayProvider, tokenStoreAddress, address]);
 
   useEffect(() => {
     const getRelayProvider = async () => {
@@ -72,7 +56,7 @@ export const RelayedTokenStoreProvider: React.FC<{
   }, [paymasterAddress]);
 
   return (
-    <RelayedTokenStoreContext.Provider value={{ mintToken, initializeToken }}>
+    <RelayedTokenStoreContext.Provider value={{ relayedTokenStoreContract }}>
       {children}
     </RelayedTokenStoreContext.Provider>
   );

@@ -45,7 +45,7 @@ const Home: NextPage = () => {
     chains.polygonMumbai.id,
     chains.hardhat.id,
   ].includes(chain?.id || 0);
-  const { mintToken } = useRelayedTokenStore();
+  const { relayedTokenStoreContract } = useRelayedTokenStore();
   const { data: balance } = useBalance(address);
   const [loadingTokens, setLoadingTokens] = useState(false);
   const [inputAmounts, setInputAmounts] = useState<{
@@ -55,6 +55,7 @@ const Home: NextPage = () => {
     { name: string; description: string; image: string }[]
   >([]);
   const [imagedatas, setImagedatas] = useState<string[]>([]);
+  const [isMintingTokenId, setIsMintingTokenId] = useState<number>();
 
   const { data: nextTokenIdData } = useContractRead({
     address: tokenStoreAddress,
@@ -64,15 +65,14 @@ const Home: NextPage = () => {
   const nextTokenId = nextTokenIdData?.toNumber() || 0;
   const tokensIds = Array.from({ length: nextTokenId }, (_, index) => index);
 
-  const { data: tokenBalancesData } =
-    useContractReads({
-      contracts: tokensIds.map((tokenId) => ({
-        address: tokenStoreAddress,
-        abi: tokenStoreAbi,
-        functionName: "balanceOf",
-        args: [address, tokenId],
-      })),
-    });
+  const { data: tokenBalancesData } = useContractReads({
+    contracts: tokensIds.map((tokenId) => ({
+      address: tokenStoreAddress,
+      abi: tokenStoreAbi,
+      functionName: "balanceOf",
+      args: [address, tokenId],
+    })),
+  });
   const tokenBalances = tokenBalancesData as unknown as
     | ethers.BigNumber[]
     | undefined;
@@ -189,9 +189,23 @@ const Home: NextPage = () => {
                         />
                       </InputGroup>
                       <Button
-                        onClick={() =>
-                          mintToken(tokenId, inputAmounts[tokenId])
-                        }
+                        onClick={async () => {
+                          if (address && relayedTokenStoreContract) {
+                            setIsMintingTokenId(tokenId);
+                            try {
+                              await relayedTokenStoreContract.mint(
+                                address,
+                                tokenId,
+                                inputAmounts[tokenId],
+                                []
+                              );
+                            } catch (e) {
+                            } finally {
+                              setIsMintingTokenId(undefined);
+                            }
+                          }
+                        }}
+                        isLoading={isMintingTokenId === tokenId}
                         disabled={!inputAmounts[tokenId]}
                       >
                         Mint
