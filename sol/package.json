@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "sol:node": "hardhat node",
-    "sol:compile": "hardhat compile",
+    "sol:compile": "hardhat compile && yarn sol:extract-token-store-const",
     "sol:test": "hardhat test",
     "sol:gsn": "gsn start",
+    "sol:extract-token-store-const": "ts-node scripts/extract-token-store-const",
     "sol:deploy:localhost": "hardhat run --network localhost ./scripts/deploy.localhost.ts",
     "sol:deploy:mumbai": "hardhat run --network mumbai scripts/deploy.ts",
     "sol:verify": "hardhat verify"

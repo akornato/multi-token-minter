@@ -27,7 +27,7 @@ import {
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { usePrevious } from "react-use";
 import { isEqual } from "lodash";
-import { abi as tokenStoreAbi } from "web/types/TokenStore";
+import { abi as tokenStoreAbi } from "sol/typechain-types/factories/contracts/TokenStore.abi.const";
 import { InitializeTokenModal } from "web/components/InitializeTokenModal";
 import { useRelayedTokenStore } from "web/hooks/useRelayedTokenStore";
 import { useAddresses } from "../hooks/useAddresses";
