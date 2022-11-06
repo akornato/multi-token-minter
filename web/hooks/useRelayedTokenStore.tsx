@@ -3,8 +3,8 @@ import { ethers } from "ethers";
 import { useAccount } from "wagmi";
 import { RelayProvider } from "@opengsn/provider";
 import { useAddresses } from "web/hooks/useAddresses";
-import { TokenStore__factory } from "web/typechain-types/factories/contracts/TokenStore__factory";
-import { TokenStore } from "web/typechain-types/contracts/TokenStore";
+import { TokenStore__factory } from "sol/typechain-types/factories/contracts/TokenStore__factory";
+import { TokenStore } from "sol/typechain-types/contracts/TokenStore";
 
 const RelayedTokenStoreContext = createContext<{
   relayedTokenStoreContract?: TokenStore;
