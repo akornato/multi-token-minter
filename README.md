@@ -1,6 +1,6 @@
 This demonstrates an ERC1155/ERC2771 semi-fungible contract with meta transactions and token metadata stored on IPFS, as well as a gasless web app to initialize, view and mint new tokens.
 
-Contracts are deployed to Polygon Mumbai. The web app is deployed at https://multi-token-minter.vercel.app
+Only local dev works for now. The deployment to testnets is waiting for updated 3.x GSN contracts (RelayHub/Forwarder) there, see the discussion on OpenGSN Discord server.
 
 Tech:
 
